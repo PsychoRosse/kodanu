@@ -22,15 +22,17 @@ impl PhysicsWorld {
         self.physics.gravity = RapierVec3::new(gravity.x, gravity.y, gravity.z);
     }
 
-    pub fn remove_rigid_body(&mut self, body: RigidBody) {
+    pub fn remove_rigid_body(&mut self, body: &mut RigidBody) {
         if let Some(handle) = body.handle() {
             self.physics.remove_body(handle);
+            body.set_handle(None);
         }
     }
 
-    pub fn remove_collider(&mut self, collider: Collider) {
+    pub fn remove_collider(&mut self, collider: &mut Collider) {
         if let Some(handle) = collider.handle() {
             self.physics.remove_collider(handle);
+            collider.set_handle(None);
         }
     }
 }

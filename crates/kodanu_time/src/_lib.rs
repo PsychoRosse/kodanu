@@ -14,7 +14,7 @@
 //! `Res<Time>`.
 //!
 //! ```
-//! use {kodanu_time::prelude::*. kodanu_ecs::Res};
+//! use {kodanu_time::Time, kodanu_ecs::Res};
 //!
 //! fn movement_system(time: Res<Time>) {
 //!     let delta = time.delta();

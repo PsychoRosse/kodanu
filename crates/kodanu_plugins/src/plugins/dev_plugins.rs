@@ -9,6 +9,11 @@ pub use {
     kodanu_window::WindowEventPlugin,
 };
 
+/// Registers the standard development stack.
+///
+/// The plugin registers [`WindowEventPlugin`], [`InputPlugin`], [`TimePlugin`],
+/// [`RenderPlugin`], and [`PhysicsPlugin`], followed by [`crate::DemoScenePlugin`]
+/// and [`crate::FreeCameraPlugin`].
 pub struct DevPlugins;
 
 impl Plugin for DevPlugins {

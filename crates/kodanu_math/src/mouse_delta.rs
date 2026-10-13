@@ -38,6 +38,13 @@ impl MouseDelta {
     pub const fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
+
+    /// Creates a mouse movement delta from its horizontal and vertical
+    /// components, or returns `None` if either component is not finite.
+    #[must_use]
+    pub fn try_new(x: f32, y: f32) -> Option<Self> {
+        (x.is_finite() && y.is_finite()).then_some(Self::new(x, y))
+    }
 }
 
 impl MouseDelta {
@@ -51,6 +58,23 @@ impl MouseDelta {
     #[must_use]
     pub fn y(&self) -> f32 {
         self.y
+    }
+
+    /// Creates a mouse movement delta from its horizontal and vertical
+    /// components.
+    ///
+    /// This is equivalent to [`Self::new`].
+    #[must_use]
+    pub fn from_xy(x: f32, y: f32) -> Self {
+        Self::new(x, y)
+    }
+
+    /// Returns `true` if every component is finite.
+    ///
+    /// A component is finite when it is neither `NaN` nor infinite.
+    #[must_use]
+    pub fn is_finite(&self) -> bool {
+        self.x.is_finite() && self.y.is_finite()
     }
 }
 

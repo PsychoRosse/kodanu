@@ -209,6 +209,7 @@ impl From<WindowSize> for (u32, u32) {
 }
 
 impl Display for WindowSize {
+    /// Formats the size as `width×height`, for example `1920×1080`.
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "{}×{}", self.width, self.height)
     }

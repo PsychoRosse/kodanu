@@ -22,7 +22,8 @@ use {
 /// let rotation = Quat::from_rotation_y(90.0);
 /// let direction = rotation * Vec3::FORWARD;
 ///
-/// assert!((direction.x - 1.0).abs() < 1e-5);
+/// // FORWARD is (0, 0, -1); a +90 degree rotation around Y maps it to (-1, 0, 0).
+/// assert!((direction.x + 1.0).abs() < 1e-5);
 /// assert!(direction.y.abs() < 1e-5);
 /// assert!(direction.z.abs() < 1e-5);
 /// ```
@@ -58,6 +59,14 @@ impl Quat {
 }
 
 impl Quat {
+    /// Returns `true` if every component is finite.
+    ///
+    /// A component is finite when it is neither `NaN` nor infinite.
+    #[must_use]
+    pub const fn is_finite(self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite() && self.w.is_finite()
+    }
+
     /// Returns the quaternion components as an array in `[x, y, z, w]` order.
     #[must_use]
     pub const fn to_array(self) -> [f32; 4] {
@@ -71,6 +80,9 @@ impl Quat {
     }
 
     /// Returns the squared magnitude of the quaternion.
+    ///
+    /// This is equivalent to `self.dot(self)` and avoids the square root
+    /// required by [`Self::length`].
     #[must_use]
     pub fn length_squared(self) -> f32 {
         self.dot(self)
@@ -82,29 +94,75 @@ impl Quat {
         self.length_squared().sqrt()
     }
 
+    /// Returns the quaternion magnitude while avoiding intermediate
+    /// overflow and underflow for finite components.
+    ///
+    /// Returns `NaN` if any component is non-finite.
+    /// Returns infinity if the actual magnitude exceeds `f32::MAX`.
+    #[must_use]
+    pub fn length_stable(self) -> f32 {
+        if !self.is_finite() {
+            return f32::NAN;
+        }
+
+        let scale = self
+            .x
+            .abs()
+            .max(self.y.abs())
+            .max(self.z.abs())
+            .max(self.w.abs());
+
+        if scale == 0.0 {
+            return 0.0;
+        }
+
+        let scaled = self / scale;
+        scale * scaled.length()
+    }
+
     /// Returns the dot product of two quaternions.
     #[must_use]
     pub fn dot(self, other: Self) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
-    /// Returns the normalized quaternion, or `None` if its squared magnitude
-    /// is less than or equal to `f32::EPSILON`.
+    /// Returns the normalized quaternion, or `None` if any component is not
+    /// finite or the quaternion is zero.
+    ///
+    /// Scales the components before computing the length to avoid
+    /// intermediate overflow and underflow.
     #[must_use]
     pub fn try_normalize(self) -> Option<Self> {
-        let length_squared = self.length_squared();
-
-        if length_squared <= f32::EPSILON {
+        if !self.is_finite() {
             return None;
         }
 
-        Some(self / length_squared.sqrt())
+        let scale = self
+            .x
+            .abs()
+            .max(self.y.abs())
+            .max(self.z.abs())
+            .max(self.w.abs());
+
+        if scale == 0.0 {
+            return None;
+        }
+
+        let scaled = Self::new(
+            self.x / scale,
+            self.y / scale,
+            self.z / scale,
+            self.w / scale,
+        );
+
+        Some(scaled / scaled.length())
     }
 
-    /// Returns the normalized quaternion.
+    /// Normalizes the quaternion without checking whether its length is valid.
     ///
-    /// A zero-length quaternion produces non-finite components.
-    /// Use [`Self::try_normalize`] when the quaternion may have zero length.
+    /// Zero-length quaternions and quaternions with non-finite or overflowing
+    /// lengths may produce non-finite or zero components.
+    /// Use [`Self::try_normalize`] when the input may be invalid.
     #[must_use]
     pub fn normalize(self) -> Self {
         self / self.length()
@@ -118,72 +176,121 @@ impl Quat {
         Self::new(-self.x, -self.y, -self.z, self.w)
     }
 
-    /// Returns the multiplicative inverse of the quaternion.
+    /// Returns the inverse quaternion.
     ///
-    /// For a non-zero quaternion `q`, the inverse is
-    /// `conjugate(q) / length_squared(q)`.
+    /// # Panics
     ///
-    /// A zero-length quaternion produces non-finite components.
-    #[must_use]
+    /// Panics if the quaternion is zero, non-finite, or its inverse cannot
+    /// be represented by finite `f32` components.
     pub fn inverse(self) -> Self {
-        self.conjugate() / self.length_squared()
+        self.try_inverse()
+            .expect("cannot invert a zero or invalid quaternion")
     }
 
-    /// Converts the quaternion to an axis-angle representation.
+    /// Returns the inverse quaternion.
     ///
-    /// Returns the rotation axis and angle in degrees.
-    /// If the quaternion cannot provide a valid axis, returns
-    /// [`Vec3::RIGHT`] and `0.0`.
-    #[must_use]
+    /// Returns `None` if the quaternion is zero, non-finite, or its inverse
+    /// cannot be represented by finite `f32` components.
+    pub fn try_inverse(self) -> Option<Self> {
+        if !self.is_finite() {
+            return None;
+        }
+
+        let scale = self
+            .x
+            .abs()
+            .max(self.y.abs())
+            .max(self.z.abs())
+            .max(self.w.abs());
+
+        if scale == 0.0 {
+            return None;
+        }
+
+        let scaled = Self::new(
+            self.x / scale,
+            self.y / scale,
+            self.z / scale,
+            self.w / scale,
+        );
+
+        let norm_squared = scaled.length_squared();
+
+        let inverse = scaled.conjugate() / norm_squared / scale;
+
+        inverse.is_finite().then_some(inverse)
+    }
+
+    /// Converts this quaternion to an axis and angle in degrees.
+    ///
+    /// The quaternion is normalized before conversion. The axis for a zero
+    /// rotation is `Vec3::RIGHT`, and its angle is `0.0`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the quaternion is zero or non-finite.
     pub fn to_axis_angle(self) -> (Vec3, f32) {
-        let Some(mut q) = self.try_normalize() else {
-            return (Vec3::RIGHT, 0.0);
-        };
+        let q = self
+            .try_normalize()
+            .expect("cannot convert an invalid quaternion to axis-angle");
 
-        if q.w < 0.0 {
-            q = -q;
+        // q and -q represent the same rotation. Choose the hemisphere with
+        // non-negative w to return an angle in [0, 180] degrees.
+        let q = if q.w < 0.0 { -q } else { q };
+
+        let sin_half = q.x.hypot(q.y).hypot(q.z);
+
+        if sin_half == 0.0 {
+            return (Vec3::RIGHT, 0.0);
         }
 
-        let angle = 2.0 * q.w.clamp(-1.0, 1.0).acos();
-        let sin_half_angle = (1.0 - q.w * q.w).sqrt();
+        let axis = Vec3::new(q.x, q.y, q.z) / sin_half;
+        let angle = 2.0 * sin_half.atan2(q.w).to_degrees();
 
-        if sin_half_angle <= f32::EPSILON {
-            return (Vec3::RIGHT, 0.0);
+        (axis, angle)
+    }
+
+    /// Attempts to rotate a vector by this quaternion.
+    ///
+    /// The quaternion and vector must be finite, and the quaternion must be
+    /// non-zero. Returns `None` if the resulting vector is non-finite.
+    pub fn try_rotate_vec3(self, vector: Vec3) -> Option<Vec3> {
+        if !vector.is_finite() {
+            return None;
         }
 
-        let axis = Vec3::new(q.x, q.y, q.z) / sin_half_angle;
+        let q = self.try_normalize()?;
 
-        (axis, angle.to_degrees())
+        let qv = Vec3::new(q.x, q.y, q.z);
+        let t = qv.cross(vector) * 2.0;
+        let result = vector + t * q.w + qv.cross(t);
+
+        result.is_finite().then_some(result)
     }
 
     /// Rotates a vector by this quaternion.
     ///
-    /// The quaternion is normalized before applying the rotation.
-    /// A zero-length quaternion does not represent a valid rotation.
-    #[must_use]
+    /// The quaternion must be finite and non-zero. Invalid input causes a panic.
     pub fn rotate_vec3(self, vector: Vec3) -> Vec3 {
-        let q = self.normalize();
-
-        let qv = Vec3::new(q.x, q.y, q.z);
-        let t = qv.cross(vector) * 2.0;
-
-        vector + t * q.w + qv.cross(t)
+        self.try_rotate_vec3(vector)
+            .expect("cannot rotate a vector with an invalid quaternion or vector")
     }
 }
 
 impl Quat {
     /// Creates a quaternion from Euler angles in degrees.
     ///
-    /// The angles represent rotations around the X, Y, and Z axes,
-    /// respectively.
+    /// Uses the Hamilton product `qx * qy * qz`, where `qx`, `qy`, and `qz`
+    /// are rotations around the X, Y, and Z axes, respectively.
     ///
-    /// The exact composition convention depends on the formula used
-    /// by this implementation.
+    /// When rotating a vector, the Z rotation is applied first, then Y,
+    /// then X. The returned quaternion is not guaranteed to be unit length
+    /// for all floating-point inputs.
     #[must_use]
     pub fn from_euler(x_degrees: f32, y_degrees: f32, z_degrees: f32) -> Self {
-        let x = x_degrees.to_radians();
-        let y = y_degrees.to_radians();
-        let z = z_degrees.to_radians();
+        let x = x_degrees.rem_euclid(360.0).to_radians();
+        let y = y_degrees.rem_euclid(360.0).to_radians();
+        let z = z_degrees.rem_euclid(360.0).to_radians();
 
         let (sin_x, cos_x) = (x * 0.5).sin_cos();
         let (sin_y, cos_y) = (y * 0.5).sin_cos();
@@ -197,34 +304,72 @@ impl Quat {
         )
     }
 
-    /// Creates a quaternion from an axis and an angle in degrees.
+    /// Creates a unit quaternion from an axis and an angle in degrees.
     ///
-    /// The axis is normalized before use. The axis must have non-zero length.
-    #[must_use]
+    /// The axis must be finite and non-zero, and the angle must be finite.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the axis or angle is invalid.
     pub fn from_axis_angle(axis: Vec3, degrees: f32) -> Self {
-        let radians = degrees.to_radians();
-        let (sin, cos) = (radians * 0.5).sin_cos();
-        let axis = axis.normalize();
+        Self::try_from_axis_angle(axis, degrees)
+            .expect("axis-angle requires a finite non-zero axis and finite angle")
+    }
 
-        Self::new(axis.x * sin, axis.y * sin, axis.z * sin, cos)
+    /// Attempts to create a unit quaternion from an axis and an angle in degrees.
+    ///
+    /// The axis must be finite and non-zero. Non-finite angles are rejected.
+    /// The angle is reduced modulo 360 degrees before conversion to radians,
+    /// avoiding overflow during degree-to-radian conversion.
+    pub fn try_from_axis_angle(axis: Vec3, degrees: f32) -> Option<Self> {
+        if !degrees.is_finite() {
+            return None;
+        }
+
+        let axis = axis.try_normalize()?;
+        let reduced_degrees = degrees.rem_euclid(360.0);
+        let half_angle = reduced_degrees.to_radians() * 0.5;
+        let (sin, cos) = half_angle.sin_cos();
+
+        let result = Self::new(axis.x * sin, axis.y * sin, axis.z * sin, cos);
+
+        result.is_finite().then_some(result)
     }
 
     /// Creates a quaternion from a scaled axis.
     ///
-    /// The vector direction specifies the rotation axis and its length
-    /// specifies the rotation angle in degrees.
+    /// The vector direction defines the rotation axis and its length defines
+    /// the angle in degrees. Vectors with length at most `f32::EPSILON`
+    /// produce the identity quaternion.
     ///
-    /// A vector with a length less than or equal to `f32::EPSILON`
-    /// produces the identity rotation.
-    #[must_use]
-    pub fn from_scaled_axis(axis: Vec3) -> Self {
-        let degrees = axis.length();
+    /// Returns the identity quaternion if the input is non-finite or the
+    /// rotation cannot be represented safely.
+    pub fn from_scaled_axis(scaled_axis: Vec3) -> Self {
+        Self::try_from_scaled_axis(scaled_axis).unwrap_or(Self::IDENTITY)
+    }
 
-        if degrees <= f32::EPSILON {
-            return Self::IDENTITY;
+    /// Attempts to create a quaternion from a scaled axis.
+    ///
+    /// The vector direction defines the rotation axis and its length defines
+    /// the angle in degrees. Returns `None` for non-finite input or if the
+    /// resulting rotation cannot be represented safely.
+    pub fn try_from_scaled_axis(scaled_axis: Vec3) -> Option<Self> {
+        if !scaled_axis.is_finite() {
+            return None;
         }
 
-        Self::from_axis_angle(axis / degrees, degrees)
+        let degrees = scaled_axis.length_stable();
+
+        if !degrees.is_finite() {
+            return None;
+        }
+
+        if degrees <= f32::EPSILON {
+            return Some(Self::IDENTITY);
+        }
+
+        let axis = scaled_axis.try_normalize()?;
+        Self::try_from_axis_angle(axis, degrees)
     }
 
     /// Creates a quaternion from `(x, y, z, w)` components.
@@ -242,7 +387,7 @@ impl Quat {
     /// Creates a rotation around the X axis by the given angle in degrees.
     #[must_use]
     pub fn from_rotation_x(degrees: f32) -> Self {
-        let radians = degrees.to_radians();
+        let radians = degrees.rem_euclid(360.0).to_radians();
         let (sin, cos) = (radians * 0.5).sin_cos();
 
         Self::new(sin, 0.0, 0.0, cos)
@@ -251,7 +396,7 @@ impl Quat {
     /// Creates a rotation around the Y axis by the given angle in degrees.
     #[must_use]
     pub fn from_rotation_y(degrees: f32) -> Self {
-        let radians = degrees.to_radians();
+        let radians = degrees.rem_euclid(360.0).to_radians();
         let (sin, cos) = (radians * 0.5).sin_cos();
 
         Self::new(0.0, sin, 0.0, cos)
@@ -260,7 +405,7 @@ impl Quat {
     /// Creates a rotation around the Z axis by the given angle in degrees.
     #[must_use]
     pub fn from_rotation_z(degrees: f32) -> Self {
-        let radians = degrees.to_radians();
+        let radians = degrees.rem_euclid(360.0).to_radians();
         let (sin, cos) = (radians * 0.5).sin_cos();
 
         Self::new(0.0, 0.0, sin, cos)
@@ -270,6 +415,10 @@ impl Quat {
 impl Mul for Quat {
     type Output = Self;
 
+    /// Multiplies two quaternions.
+    ///
+    /// The result composes the rotations: applying `rhs` first and then
+    /// `self` is equivalent to applying the result.
     fn mul(self, rhs: Self) -> Self::Output {
         Self::new(
             self.w * rhs.x + self.x * rhs.w + self.y * rhs.z - self.z * rhs.y,
@@ -281,6 +430,7 @@ impl Mul for Quat {
 }
 
 impl MulAssign for Quat {
+    /// Multiplies this quaternion by another in place.
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
     }
@@ -289,12 +439,14 @@ impl MulAssign for Quat {
 impl Mul<f32> for Quat {
     type Output = Self;
 
+    /// Multiplies each component of the quaternion by a scalar.
     fn mul(self, rhs: f32) -> Self::Output {
         Self::new(self.x * rhs, self.y * rhs, self.z * rhs, self.w * rhs)
     }
 }
 
 impl MulAssign<f32> for Quat {
+    /// Multiplies each component of this quaternion by a scalar in place.
     fn mul_assign(&mut self, rhs: f32) {
         self.x *= rhs;
         self.y *= rhs;
@@ -306,11 +458,13 @@ impl MulAssign<f32> for Quat {
 impl Div<f32> for Quat {
     type Output = Self;
 
+    /// Divides each component of the quaternion by a scalar.
     fn div(self, rhs: f32) -> Self::Output {
         Self::new(self.x / rhs, self.y / rhs, self.z / rhs, self.w / rhs)
     }
 }
 impl DivAssign<f32> for Quat {
+    /// Divides each component of this quaternion by a scalar in place.
     fn div_assign(&mut self, rhs: f32) {
         self.x /= rhs;
         self.y /= rhs;
@@ -322,6 +476,9 @@ impl DivAssign<f32> for Quat {
 impl Neg for Quat {
     type Output = Self;
 
+    /// Negates each component of the quaternion.
+    ///
+    /// The negated quaternion represents the same rotation.
     fn neg(self) -> Self::Output {
         Self::new(-self.x, -self.y, -self.z, -self.w)
     }
@@ -330,7 +487,199 @@ impl Neg for Quat {
 impl Mul<Vec3> for Quat {
     type Output = Vec3;
 
+    /// Rotates a vector by this quaternion.
+    ///
+    /// # Panics
+    ///
+    /// Panics under the same conditions as [`Self::rotate_vec3`].
     fn mul(self, rhs: Vec3) -> Self::Output {
         self.rotate_vec3(rhs)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const EPSILON: f32 = 1.0e-5;
+
+    fn approx_eq(a: f32, b: f32) {
+        assert!(
+            (a - b).abs() <= EPSILON,
+            "expected {a} ≈ {b}, difference = {}",
+            (a - b).abs()
+        );
+    }
+
+    fn vec3_approx_eq(a: Vec3, b: Vec3) {
+        approx_eq(a.x, b.x);
+        approx_eq(a.y, b.y);
+        approx_eq(a.z, b.z);
+    }
+
+    #[test]
+    fn to_axis_angle_handles_small_angles_and_negative_quaternions() {
+        let q = Quat::from_axis_angle(Vec3::UP, 90.0);
+        let (axis, angle) = (-q).to_axis_angle();
+
+        vec3_approx_eq(axis, Vec3::UP);
+        approx_eq(angle, 90.0);
+    }
+
+    #[test]
+    fn from_euler_matches_hamilton_product_order() {
+        let x = Quat::from_rotation_x(30.0);
+        let y = Quat::from_rotation_y(45.0);
+        let z = Quat::from_rotation_z(60.0);
+
+        let expected = x * y * z;
+        let actual = Quat::from_euler(30.0, 45.0, 60.0);
+
+        approx_eq(actual.x, expected.x);
+        approx_eq(actual.y, expected.y);
+        approx_eq(actual.z, expected.z);
+        approx_eq(actual.w, expected.w);
+    }
+
+    #[test]
+    fn length_stable_handles_identity_and_scalar_component() {
+        assert_eq!(Quat::IDENTITY.length_stable(), 1.0);
+        assert_eq!(Quat::new(0.0, 0.0, 0.0, 2.0).length_stable(), 2.0);
+    }
+
+    #[test]
+    fn length_stable_handles_large_quaternions() {
+        let q = Quat::new(1e30, 1e30, 1e30, 1e30);
+        let length = q.length_stable();
+
+        assert!(length.is_finite());
+        assert!((length / 1e30 - 2.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn length_stable_returns_nan_for_non_finite_quaternions() {
+        assert!(Quat::new(f32::NAN, 0.0, 0.0, 1.0).length_stable().is_nan());
+        assert!(
+            Quat::new(0.0, 0.0, 0.0, f32::INFINITY)
+                .length_stable()
+                .is_nan()
+        );
+    }
+
+    #[test]
+    fn try_inverse_handles_large_quaternions() {
+        let q = Quat::new(1.0e30, -2.0e30, 3.0e30, 4.0e30);
+
+        let inverse = q.try_inverse().expect("inverse should be finite");
+        let product = q * inverse;
+
+        approx_eq(product.x, 0.0);
+        approx_eq(product.y, 0.0);
+        approx_eq(product.z, 0.0);
+        approx_eq(product.w, 1.0);
+    }
+
+    #[test]
+    fn try_inverse_handles_identity() {
+        assert_eq!(Quat::IDENTITY.try_inverse(), Some(Quat::IDENTITY));
+    }
+
+    #[test]
+    fn try_inverse_rejects_zero_and_non_finite_quaternions() {
+        let zero = Quat::new(0.0, 0.0, 0.0, 0.0);
+
+        assert!(zero.try_inverse().is_none());
+        assert!(Quat::new(f32::NAN, 0.0, 0.0, 1.0).try_inverse().is_none());
+        assert!(
+            Quat::new(f32::INFINITY, 0.0, 0.0, 1.0)
+                .try_inverse()
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn try_rotate_vec3_rotates_with_identity() {
+        assert_eq!(
+            Quat::IDENTITY.try_rotate_vec3(Vec3::RIGHT),
+            Some(Vec3::RIGHT)
+        );
+    }
+
+    #[test]
+    fn try_rotate_vec3_rejects_invalid_inputs() {
+        let zero = Quat::new(0.0, 0.0, 0.0, 0.0);
+
+        assert!(zero.try_rotate_vec3(Vec3::RIGHT).is_none());
+
+        assert!(
+            Quat::IDENTITY
+                .try_rotate_vec3(Vec3::new(f32::NAN, 0.0, 0.0))
+                .is_none()
+        );
+
+        assert!(
+            Quat::IDENTITY
+                .try_rotate_vec3(Vec3::new(f32::INFINITY, 0.0, 0.0))
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn rotate_vec3_normalizes_non_unit_quaternions() {
+        let q = Quat::from_rotation_y(90.0) * 3.0;
+
+        let rotated = q
+            .try_rotate_vec3(Vec3::FORWARD)
+            .expect("rotation should succeed");
+
+        vec3_approx_eq(rotated, Vec3::LEFT);
+    }
+
+    #[test]
+    fn to_axis_angle_handles_negative_quaternions() {
+        let q = Quat::from_axis_angle(Vec3::UP, 90.0);
+
+        let (axis_a, angle_a) = q.to_axis_angle();
+        let (axis_b, angle_b) = (-q).to_axis_angle();
+
+        vec3_approx_eq(axis_a, Vec3::UP);
+        vec3_approx_eq(axis_b, axis_a);
+        approx_eq(angle_a, 90.0);
+        approx_eq(angle_b, angle_a);
+    }
+
+    #[test]
+    fn to_axis_angle_preserves_small_nonzero_angles() {
+        let q = Quat::from_axis_angle(Vec3::UP, 0.001);
+        let (axis, angle) = q.to_axis_angle();
+
+        vec3_approx_eq(axis, Vec3::UP);
+        assert!(angle > 0.0);
+        approx_eq(angle, 0.001);
+    }
+
+    #[test]
+    fn to_axis_angle_returns_canonical_zero_rotation() {
+        let (axis, angle) = Quat::IDENTITY.to_axis_angle();
+
+        assert_eq!(axis, Vec3::RIGHT);
+        assert_eq!(angle, 0.0);
+    }
+
+    #[test]
+    fn try_from_axis_angle_handles_large_finite_angles() {
+        let result = Quat::try_from_axis_angle(Vec3::UP, f32::MAX);
+
+        assert!(result.is_some());
+        assert!(result.unwrap().is_finite());
+    }
+
+    #[test]
+    fn try_from_scaled_axis_rejects_non_finite_and_overflowing_lengths() {
+        assert!(Quat::try_from_scaled_axis(Vec3::new(f32::INFINITY, 0.0, 0.0)).is_none());
+
+        assert!(Quat::try_from_scaled_axis(Vec3::new(f32::MAX, f32::MAX, 0.0)).is_none());
+
+        assert_eq!(Quat::try_from_scaled_axis(Vec3::ZERO), Some(Quat::IDENTITY));
     }
 }

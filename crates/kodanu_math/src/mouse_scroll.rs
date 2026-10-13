@@ -6,7 +6,18 @@ use serde::{Deserialize, Serialize};
 ///
 /// Mouse scroll input can be reported either as discrete lines
 /// or as a continuous pixel offset.
-
+///
+/// # Examples
+///
+/// ```
+/// use kodanu_math::{MouseScroll, MouseScrollDelta};
+///
+/// let line_scroll = MouseScroll::Lines(MouseScrollDelta::new(0.0, -1.0));
+/// let pixel_scroll = MouseScroll::Pixels(MouseScrollDelta::new(0.0, -8.0));
+///
+/// assert!(matches!(line_scroll, MouseScroll::Lines(_)));
+/// assert!(matches!(pixel_scroll, MouseScroll::Pixels(_)));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum MouseScroll {
     /// Scroll amount reported in logical lines.

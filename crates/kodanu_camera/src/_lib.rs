@@ -5,6 +5,19 @@
 //!
 //! The main types are [`crate::Camera`], [`crate::Projection`], and
 //! [`crate::PerspectiveProjection`].
+//!
+//! # Examples
+//!
+//! ```
+//! use kodanu_camera::prelude::*;
+//!
+//! let projection = PerspectiveProjection::new(90.0, 16.0 / 9.0, 0.03, 1000.0);
+//! let camera = Camera::from(Projection::Perspective(projection));
+//!
+//! let projection_matrix = camera.projection_matrix();
+//! ```
+//!
+//! Commonly used types can also be imported through [`prelude`].
 
 #![warn(missing_docs)]
 #![warn(rustdoc::broken_intra_doc_links)]

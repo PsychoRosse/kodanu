@@ -1,19 +1,23 @@
 use crate::{Bundle, Entity, Resource, SystemParam, WorldCell};
 
 #[derive(Clone, Copy)]
-pub struct Commands<'w> {
-    world: WorldCell<'w>,
+pub struct Commands<'c> {
+    world: WorldCell<'c>,
 }
 
-impl<'w> Commands<'w> {
-    pub fn new(world: WorldCell<'w>) -> Commands<'w> {
+impl<'c> Commands<'c> {
+    pub fn new(world: WorldCell<'c>) -> Commands<'c> {
         Self { world }
     }
 }
 
-impl<'w> Commands<'w> {
+impl<'c> Commands<'c> {
     pub fn spawn<B: Bundle>(&self, bundle: B) -> Entity {
         self.world.spawn(bundle)
+    }
+
+    pub fn despawn(&self, entity: Entity) -> bool {
+        self.world.despawn(entity)
     }
 
     pub fn with_res<R: Resource>(&self, resource: R) {
@@ -22,9 +26,9 @@ impl<'w> Commands<'w> {
 }
 
 impl SystemParam for Commands<'_> {
-    type Item<'w> = Commands<'w>;
+    type Item<'c> = Commands<'c>;
 
-    fn fetch<'w>(world: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'c>(world: WorldCell<'c>) -> Self::Item<'c> {
         Commands::new(world)
     }
 }

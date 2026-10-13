@@ -34,3 +34,56 @@ impl FixedRunner {
         steps
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn does_not_run_before_time_step() {
+        let mut runner = FixedRunner::new(0.1);
+
+        assert_eq!(runner.consume(0.05), 0)
+    }
+
+    #[test]
+    fn runs_one_step_when_enough_time_accumulates() {
+        let mut runner = FixedRunner::new(0.1);
+
+        assert_eq!(runner.consume(0.1), 1);
+    }
+
+    #[test]
+    fn accumulates_time_across_calls() {
+        let mut runner = FixedRunner::new(0.1);
+
+        assert_eq!(runner.consume(0.06), 0);
+        assert_eq!(runner.consume(0.06), 1);
+    }
+
+    #[test]
+    fn limits_steps_per_call() {
+        let mut runner = FixedRunner::new(0.1);
+
+        assert_eq!(runner.consume(1.0), 4);
+    }
+
+    #[test]
+    fn preserves_remaining_accumulated_time() {
+        let mut runner = FixedRunner::new(0.1);
+
+        assert_eq!(runner.consume(0.55), 4);
+        assert_eq!(runner.consume(0.0), 1);
+    }
+
+    #[test]
+    fn caps_at_max_steps_and_keeps_debt() {
+        let mut runner = FixedRunner::default();
+
+        let dt = 1.0 / 60.0;
+
+        assert_eq!(runner.consume(10.0 * dt), 4);
+        assert_eq!(runner.consume(0.0), 4);
+        assert_eq!(runner.consume(0.0), 2);
+    }
+}

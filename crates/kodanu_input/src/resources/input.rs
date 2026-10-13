@@ -68,7 +68,7 @@ impl Input {
 
         for event in position.iter() {
             if let Some(pervious) = input.mouse_position {
-                input.mouse_delta += MouseDelta::from(*event - pervious);
+                input.mouse_delta += *event - pervious;
             }
 
             input.mouse_position = Some(*event);

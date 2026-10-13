@@ -81,9 +81,10 @@ impl Time {
     /// This can prevent unusually large frame durations from destabilizing
     /// simulation after debugger pauses, window dragging, or temporary stalls.
     ///
-    /// Setting this value to [`Duration::ZERO`] causes [`Self::delta`] to
+    /// Setting this value to [`std::time::Duration::ZERO`] causes [`Self::delta`] to
     /// return zero for every frame.
-    pub const fn set_max_delta(&mut self, max_delta: Duration) {
+    pub fn set_max_delta(&mut self, max_delta: Duration) {
         self.max_delta = max_delta;
+        self.delta = self.delta.min(max_delta);
     }
 }

@@ -27,7 +27,7 @@ pub struct Vec4 {
 impl Vec4 {
     /// The zero vector `(0, 0, 0, 0)`.
     pub const ZERO: Self = Self::new(0.0, 0.0, 0.0, 0.0);
-    /// The vector `(1, 1, 1, 1)`.
+    /// The one vector `(1, 1, 1, 1)`.
     pub const ONE: Self = Self::new(1.0, 1.0, 1.0, 1.0);
     /// The positive Y-axis direction `(0, 1, 0, 0)`.
     pub const UP: Self = Self::new(0.0, 1.0, 0.0, 0.0);
@@ -37,10 +37,10 @@ impl Vec4 {
     pub const LEFT: Self = Self::new(-1.0, 0.0, 0.0, 0.0);
     /// The positive X-axis direction `(1, 0, 0, 0)`.
     pub const RIGHT: Self = Self::new(1.0, 0.0, 0.0, 0.0);
-    /// The positive Z-axis direction `(0, 0, 1, 0)`.
-    pub const FORWARD: Self = Self::new(0.0, 0.0, 1.0, 0.0);
-    /// The negative Z-axis direction `(0, 0, -1, 0)`.
-    pub const BACKWARD: Self = Self::new(0.0, 0.0, -1.0, 0.0);
+    /// The forward direction along the negative Z-axis `(0, 0, -1, 0)`.
+    pub const FORWARD: Self = Self::new(0.0, 0.0, -1.0, 0.0);
+    /// The backward direction along the positive Z-axis `(0, 0, 1, 0)`.
+    pub const BACKWARD: Self = Self::new(0.0, 0.0, 1.0, 0.0);
 }
 
 impl Vec4 {
@@ -58,7 +58,18 @@ impl Vec4 {
         Self::new(value, value, value, value)
     }
 
+    /// Returns `true` if every component is finite.
+    ///
+    /// A component is finite when it is neither `NaN` nor infinite.
+    #[must_use]
+    pub const fn is_finite(self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite() && self.w.is_finite()
+    }
+
     /// Returns the squared length of the vector.
+    ///
+    /// This is equivalent to `self.dot(self)` and avoids the square root
+    /// required by [`Self::length`].
     #[must_use]
     pub fn length_squared(self) -> f32 {
         self.dot(self)
@@ -70,32 +81,78 @@ impl Vec4 {
         self.length_squared().sqrt()
     }
 
+    /// Returns the Euclidean length while avoiding intermediate
+    /// overflow and underflow for finite vectors.
+    ///
+    /// Returns `NaN` if any component is non-finite.
+    /// Returns infinity if the actual length exceeds `f32::MAX`.
+    #[must_use]
+    pub fn length_stable(self) -> f32 {
+        if !self.is_finite() {
+            return f32::NAN;
+        }
+
+        let scale = self
+            .x
+            .abs()
+            .max(self.y.abs())
+            .max(self.z.abs())
+            .max(self.w.abs());
+
+        if scale == 0.0 {
+            return 0.0;
+        }
+
+        let scaled = self / scale;
+        scale * scaled.length()
+    }
+
     /// Returns the dot product of two vectors.
     #[must_use]
     pub fn dot(self, other: Self) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
-    /// Returns the normalized vector.
+    /// Returns the normalized vector, or `None` if any component is not
+    /// finite or the vector is zero.
     ///
-    /// A zero-length vector produces non-finite components.
-    /// Use [`Self::try_normalize`] when the vector may have zero length.
-    #[must_use]
-    pub fn normalize(self) -> Self {
-        self / self.length()
-    }
-
-    /// Returns the normalized vector, or `None` if its squared length
-    /// is less than or equal to `f32::EPSILON`.
+    /// Scales the components before computing the length to avoid
+    /// intermediate overflow and underflow.
     #[must_use]
     pub fn try_normalize(self) -> Option<Self> {
-        let length_squared = self.length_squared();
-
-        if length_squared <= f32::EPSILON {
+        if !self.is_finite() {
             return None;
         }
 
-        Some(self / length_squared.sqrt())
+        let scale = self
+            .x
+            .abs()
+            .max(self.y.abs())
+            .max(self.z.abs())
+            .max(self.w.abs());
+
+        if scale == 0.0 {
+            return None;
+        }
+
+        let scaled = Self::new(
+            self.x / scale,
+            self.y / scale,
+            self.z / scale,
+            self.w / scale,
+        );
+
+        Some(scaled / scaled.length())
+    }
+
+    /// Normalizes the vector without checking whether its length is valid.
+    ///
+    /// Zero-length vectors and vectors with non-finite or overflowing
+    /// lengths may produce non-finite or zero components.
+    /// Use [`Self::try_normalize`] when the input may be invalid.
+    #[must_use]
+    pub fn normalize(self) -> Self {
+        self / self.length()
     }
 
     /// Returns a vector containing the absolute value of each component.
@@ -161,6 +218,40 @@ impl Sub for Vec4 {
     }
 }
 
+impl Mul<Vec4> for Vec4 {
+    type Output = Self;
+
+    /// Multiplies two vectors component-wise.
+    ///
+    /// This is not a dot product. Use [`crate::Vec4::dot`] to calculate the dot
+    /// product of two vectors.
+    fn mul(self, other: Vec4) -> Self {
+        Self::new(
+            self.x * other.x,
+            self.y * other.y,
+            self.z * other.z,
+            self.w * other.w,
+        )
+    }
+}
+
+impl Div<Vec4> for Vec4 {
+    type Output = Self;
+
+    /// Divides one vector by another component-wise.
+    ///
+    /// Each component of the result is divided by the corresponding
+    /// component of the other vector.
+    fn div(self, other: Vec4) -> Self {
+        Self::new(
+            self.x / other.x,
+            self.y / other.y,
+            self.z / other.z,
+            self.w / other.w,
+        )
+    }
+}
+
 impl Mul<f32> for Vec4 {
     type Output = Self;
 
@@ -218,6 +309,16 @@ impl SubAssign for Vec4 {
     }
 }
 
+impl MulAssign for Vec4 {
+    /// Multiplies this vector by another vector in place.
+    fn mul_assign(&mut self, other: Self) {
+        self.x *= other.x;
+        self.y *= other.y;
+        self.z *= other.z;
+        self.w *= other.w;
+    }
+}
+
 impl MulAssign<f32> for Vec4 {
     /// Multiplies each component of this vector by a scalar in place.
     fn mul_assign(&mut self, scalar: f32) {
@@ -228,6 +329,16 @@ impl MulAssign<f32> for Vec4 {
     }
 }
 
+impl DivAssign for Vec4 {
+    /// Divides this vector by another vector in place.
+    fn div_assign(&mut self, other: Self) {
+        self.x /= other.x;
+        self.y /= other.y;
+        self.z /= other.z;
+        self.w /= other.w;
+    }
+}
+
 impl DivAssign<f32> for Vec4 {
     /// Divides each component of this vector by a scalar in place.
     fn div_assign(&mut self, scalar: f32) {
@@ -235,5 +346,131 @@ impl DivAssign<f32> for Vec4 {
         self.y /= scalar;
         self.z /= scalar;
         self.w /= scalar;
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const TOLERANCE: f32 = 1e-6;
+
+    fn assert_vec4_approx_eq(left: Vec4, right: Vec4) {
+        assert!((left.x - right.x).abs() < TOLERANCE);
+        assert!((left.y - right.y).abs() < TOLERANCE);
+        assert!((left.z - right.z).abs() < TOLERANCE);
+        assert!((left.w - right.w).abs() < TOLERANCE);
+    }
+
+    #[test]
+    fn is_finite_returns_true_for_finite_components() {
+        assert!(Vec4::ZERO.is_finite());
+        assert!(Vec4::new(-1.5, 42.0, 0.0, f32::MAX).is_finite());
+        assert!(Vec4::new(f32::MIN_POSITIVE, 1.0, 2.0, 3.0).is_finite());
+    }
+
+    #[test]
+    fn is_finite_returns_false_for_nan_or_infinite_components() {
+        assert!(!Vec4::new(f32::NAN, 1.0, 2.0, 3.0).is_finite());
+        assert!(!Vec4::new(1.0, f32::NAN, 2.0, 3.0).is_finite());
+        assert!(!Vec4::new(1.0, 2.0, 3.0, f32::INFINITY).is_finite());
+        assert!(!Vec4::new(1.0, 2.0, 3.0, f32::NEG_INFINITY).is_finite());
+    }
+
+    #[test]
+    fn try_normalize_returns_unit_vector() {
+        let result = Vec4::new(1.0, 2.0, 2.0, 4.0).try_normalize().unwrap();
+
+        assert_vec4_approx_eq(result, Vec4::new(0.2, 0.4, 0.4, 0.8));
+        assert!((result.length() - 1.0).abs() < TOLERANCE);
+    }
+
+    #[test]
+    fn try_normalize_handles_large_vectors() {
+        let result = Vec4::new(1e30, 1e30, 1e30, 1e30).try_normalize().unwrap();
+        let expected = 1.0 / 4.0_f32.sqrt();
+
+        assert_vec4_approx_eq(result, Vec4::splat(expected));
+    }
+
+    #[test]
+    fn try_normalize_handles_small_vectors() {
+        let result = Vec4::new(1e-30, 1e-30, 1e-30, 1e-30)
+            .try_normalize()
+            .unwrap();
+
+        let expected = 1.0 / 4.0_f32.sqrt();
+
+        assert_vec4_approx_eq(result, Vec4::splat(expected));
+    }
+
+    #[test]
+    fn try_normalize_handles_subnormal_values() {
+        let value = f32::from_bits(1);
+        let result = Vec4::new(value, value, 0.0, 0.0).try_normalize().unwrap();
+
+        let expected = 1.0 / 2.0_f32.sqrt();
+
+        assert_vec4_approx_eq(result, Vec4::new(expected, expected, 0.0, 0.0));
+    }
+
+    #[test]
+    fn try_normalize_rejects_zero_and_non_finite_vectors() {
+        assert_eq!(Vec4::ZERO.try_normalize(), None);
+        assert_eq!(Vec4::new(f32::NAN, 1.0, 2.0, 3.0).try_normalize(), None);
+        assert_eq!(
+            Vec4::new(0.0, 0.0, 0.0, f32::INFINITY).try_normalize(),
+            None
+        );
+        assert_eq!(
+            Vec4::new(0.0, 0.0, 0.0, f32::NEG_INFINITY).try_normalize(),
+            None
+        );
+    }
+
+    #[test]
+    fn length_stable_handles_zero_and_regular_vectors() {
+        assert_eq!(Vec4::ZERO.length_stable(), 0.0);
+        assert_eq!(Vec4::new(1.0, 2.0, 2.0, 4.0).length_stable(), 5.0);
+    }
+
+    #[test]
+    fn length_stable_handles_large_vectors() {
+        let length = Vec4::splat(1e30).length_stable();
+
+        assert!(length.is_finite());
+        assert!((length / 1e30 - 2.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn length_stable_handles_subnormal_values() {
+        let value = f32::from_bits(1);
+        let length = Vec4::new(value, value, 0.0, 0.0).length_stable();
+
+        assert!(length > 0.0);
+        assert!(length.is_finite());
+    }
+
+    #[test]
+    fn length_stable_returns_nan_for_non_finite_vectors() {
+        assert!(Vec4::new(f32::NAN, 0.0, 0.0, 0.0).length_stable().is_nan());
+        assert!(
+            Vec4::new(0.0, 0.0, 0.0, f32::INFINITY)
+                .length_stable()
+                .is_nan()
+        );
+    }
+
+    #[test]
+    fn mul_and_div_assign_apply_component_wise_operations() {
+        let mut vector = Vec4::new(2.0, 4.0, 6.0, 8.0);
+
+        vector *= Vec4::new(0.5, 0.5, 0.5, 0.5);
+
+        assert_eq!(vector, Vec4::new(1.0, 2.0, 3.0, 4.0));
+
+        vector /= Vec4::new(1.0, 2.0, 3.0, 4.0);
+
+        assert_eq!(vector, Vec4::ONE);
     }
 }

@@ -5,9 +5,15 @@ pub use {
     kodanu_math::Vec3,
     kodanu_physics::{Collider, RigidBody},
     kodanu_time::Time,
-    kodanu_transform::Transform,
+    kodanu_transform::{Space, Transform},
 };
 
+/// Provides a free-flying debug camera.
+///
+/// The plugin registers [`CameraSettings`] as a resource and
+/// spawns a camera entity marked with [`ActiveCamera`] during startup. In
+/// [`Stage::LateUpdate`] the camera moves along its basis directions using
+/// [`Input`] axes, scaled by the settings and the frame delta time.
 pub struct FreeCameraPlugin;
 
 impl Plugin for FreeCameraPlugin {
@@ -19,6 +25,7 @@ impl Plugin for FreeCameraPlugin {
     }
 }
 
+/// Moves and rotates the active camera using the input axes.
 fn free_camera_system(
     query: Query<Write<Transform>, With<ActiveCamera>>,
     settings: Res<CameraSettings>,
@@ -33,13 +40,14 @@ fn free_camera_system(
         let yaw = input.axis(Axis::LookX) * settings.sens * time.delta();
         let pitch = input.axis(Axis::LookY) * settings.sens * time.delta();
 
-        transform.translate(direction * settings.speed * time.delta());
+        transform.translate(direction * settings.speed * time.delta(), Space::Global);
 
-        transform.rotate(Vec3::UP, yaw);
-        transform.rotate_local(Vec3::RIGHT, pitch);
+        transform.rotate(Vec3::UP, yaw, Space::Global);
+        transform.rotate(Vec3::RIGHT, pitch, Space::Local);
     }
 }
 
+/// Spawns the active camera with a kinematic body and a sphere collider.
 fn free_camera_startup_system(commands: Commands) {
     commands.spawn((
         Transform::default(),

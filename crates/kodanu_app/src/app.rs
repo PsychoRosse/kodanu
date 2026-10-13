@@ -12,6 +12,11 @@ use {
 
 use pollster::block_on;
 
+/// The application entry point.
+///
+/// `App` bundles the plugin registry, the scheduler, and the ECS world.
+/// Plugins are registered with [`Self::with_plugin`] and the application
+/// is started with [`Self::run_from`].
 #[derive(Default)]
 pub struct App {
     plugins: PluginRegistry,
@@ -20,6 +25,13 @@ pub struct App {
 }
 
 impl App {
+    /// Builds the registered plugins and runs the application.
+    ///
+    /// `attr` describes the initial window attributes. The plugins are
+    /// built against the ECS world and the scheduler, then the window
+    /// event loop is started.
+    ///
+    /// This method does not return until the window is closed.
     pub fn run_from(mut self, attr: WindowAttributes) {
         self.plugins
             .build(WorldCell::from(&mut self.world), &mut self.schduler);
@@ -29,6 +41,9 @@ impl App {
 }
 
 impl App {
+    /// Registers a plugin and returns the application for chaining.
+    ///
+    /// Registered plugins are built by [`Self::run_from`].
     pub fn with_plugin<P: Plugin>(mut self, plugin: P) -> Self {
         self.plugins.with_plugin(plugin);
         self

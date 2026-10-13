@@ -1,4 +1,5 @@
 use {
+    crate::MouseDelta,
     kodanu_ecs::Event,
     serde::{Deserialize, Serialize},
     std::ops::Sub,
@@ -12,9 +13,9 @@ use {
 /// # Examples
 ///
 /// ```
-/// use kodanu_math::MousePosition;
+/// use kodanu_math::MousePos;
 ///
-/// let position = MousePosition::new(640.0, 360.0);
+/// let position = MousePos::new(640.0, 360.0);
 ///
 /// assert_eq!(position.x(), 640.0);
 /// assert_eq!(position.y(), 360.0);
@@ -36,7 +37,7 @@ impl MousePos {
 }
 
 impl MousePos {
-    /// Returns the vertical position in physical pixels.
+    /// Returns the horizontal position in physical pixels.
     #[must_use]
     pub const fn x(&self) -> f32 {
         self.x
@@ -50,7 +51,7 @@ impl MousePos {
 }
 
 impl Sub for MousePos {
-    type Output = MousePos;
+    type Output = MouseDelta;
 
     /// Returns the component-wise difference between two positions.
     ///
@@ -60,10 +61,10 @@ impl Sub for MousePos {
     /// # Examples
     ///
     /// ```
-    /// use kodanu_math::MousePosition;
+    /// use kodanu_math::MousePos;
     ///
-    /// let current = MousePosition::new(100.0, 80.0);
-    /// let previous = MousePosition::new(60.0, 50.0);
+    /// let current = MousePos::new(100.0, 80.0);
+    /// let previous = MousePos::new(60.0, 50.0);
     ///
     /// let delta = current - previous;
     ///
@@ -71,6 +72,6 @@ impl Sub for MousePos {
     /// assert_eq!(delta.y(), 30.0);
     /// ```
     fn sub(self, rhs: Self) -> Self::Output {
-        Self::new(self.x - rhs.x, self.y - rhs.y)
+        MouseDelta::new(self.x - rhs.x, self.y - rhs.y)
     }
 }

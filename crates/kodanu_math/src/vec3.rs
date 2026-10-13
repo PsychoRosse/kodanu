@@ -51,7 +51,39 @@ impl Vec3 {
 }
 
 impl Vec3 {
-    /// Returns the squared length of the vector without calculating a square root.
+    /// Returns `true` if every component is finite.
+    ///
+    /// A component is finite when it is neither `NaN` nor infinite.
+    #[must_use]
+    pub const fn is_finite(self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
+    }
+
+    /// Returns the Euclidean length while avoiding intermediate
+    /// overflow and underflow for finite vectors.
+    ///
+    /// Returns `NaN` if any component is non-finite.
+    /// Returns infinity if the actual length exceeds `f32::MAX`.
+    #[must_use]
+    pub fn length_stable(self) -> f32 {
+        if !self.is_finite() {
+            return f32::NAN;
+        }
+
+        let scale = self.x.abs().max(self.y.abs()).max(self.z.abs());
+
+        if scale == 0.0 {
+            return 0.0;
+        }
+
+        let scaled = self / scale;
+        scale * scaled.length()
+    }
+
+    /// Returns the squared length of the vector.
+    ///
+    /// This is equivalent to `self.dot(self)` and avoids the square root
+    /// required by [`Self::length`].
     #[must_use]
     pub fn length_squared(self) -> f32 {
         self.dot(self)
@@ -82,23 +114,33 @@ impl Vec3 {
         )
     }
 
-    /// Returns the normalized vector, or `None` if its squared length
-    /// is less than or equal to `f32::EPSILON`.
+    /// Returns the normalized vector, or `None` if any component is not
+    /// finite or the vector is zero.
+    ///
+    /// Scales the components before computing the length to avoid
+    /// intermediate overflow and underflow.
     #[must_use]
     pub fn try_normalize(self) -> Option<Self> {
-        let length_squared = self.length_squared();
-
-        if length_squared <= f32::EPSILON {
+        if !self.is_finite() {
             return None;
         }
 
-        Some(self / length_squared.sqrt())
+        let scale = self.x.abs().max(self.y.abs()).max(self.z.abs());
+
+        if scale == 0.0 {
+            return None;
+        }
+
+        let scaled = Self::new(self.x / scale, self.y / scale, self.z / scale);
+
+        Some(scaled / scaled.length())
     }
 
-    /// Returns the vector divided by its length.
+    /// Normalizes the vector without checking whether its length is valid.
     ///
-    /// A zero-length vector produces non-finite components.
-    /// Use [`Self::try_normalize`] when the vector may have zero length.
+    /// Zero-length vectors and vectors with non-finite or overflowing
+    /// lengths may produce non-finite or zero components.
+    /// Use [`Self::try_normalize`] when the input may be invalid.
     #[must_use]
     pub fn normalize(self) -> Self {
         self / self.length()
@@ -123,7 +165,7 @@ impl Add for Vec3 {
 impl Sub for Vec3 {
     type Output = Self;
 
-    /// Adds two vectors component-wise.
+    /// Subtracts one vector from another component-wise.
     fn sub(self, other: Self) -> Self {
         Self::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
@@ -201,5 +243,103 @@ impl Mul<Vec3> for Vec3 {
     /// product of two vectors.
     fn mul(self, other: Vec3) -> Self {
         Self::new(self.x * other.x, self.y * other.y, self.z * other.z)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const TOLERANCE: f32 = 1e-6;
+
+    fn assert_vec3_approx_eq(left: Vec3, right: Vec3) {
+        assert!((left.x - right.x).abs() < TOLERANCE);
+        assert!((left.y - right.y).abs() < TOLERANCE);
+        assert!((left.z - right.z).abs() < TOLERANCE);
+    }
+
+    #[test]
+    fn try_normalize_returns_unit_vector() {
+        assert_eq!(Vec3::RIGHT.try_normalize(), Some(Vec3::RIGHT));
+
+        let result = Vec3::new(2.0, 3.0, 6.0).try_normalize().unwrap();
+
+        assert_vec3_approx_eq(result, Vec3::new(2.0 / 7.0, 3.0 / 7.0, 6.0 / 7.0));
+
+        assert!((result.length() - 1.0).abs() < TOLERANCE);
+    }
+
+    #[test]
+    fn try_normalize_handles_large_vectors() {
+        let result = Vec3::new(1e30, 1e30, 1e30).try_normalize().unwrap();
+
+        let expected = 1.0 / 3.0_f32.sqrt();
+
+        assert_vec3_approx_eq(result, Vec3::new(expected, expected, expected));
+    }
+
+    #[test]
+    fn try_normalize_handles_small_vectors() {
+        let result = Vec3::new(1e-30, 1e-30, 1e-30).try_normalize().unwrap();
+
+        let expected = 1.0 / 3.0_f32.sqrt();
+
+        assert_vec3_approx_eq(result, Vec3::new(expected, expected, expected));
+    }
+
+    #[test]
+    fn try_normalize_rejects_zero_and_non_finite_vectors() {
+        assert_eq!(Vec3::ZERO.try_normalize(), None);
+        assert_eq!(Vec3::new(f32::NAN, 1.0, 2.0).try_normalize(), None);
+        assert_eq!(Vec3::new(0.0, f32::INFINITY, 0.0).try_normalize(), None);
+        assert_eq!(Vec3::new(0.0, f32::NEG_INFINITY, 0.0).try_normalize(), None);
+    }
+
+    #[test]
+    fn try_normalize_handles_subnormal_values() {
+        let value = f32::from_bits(1);
+        let result = Vec3::new(value, value, 0.0).try_normalize().unwrap();
+
+        let expected = 1.0 / 2.0_f32.sqrt();
+
+        assert_vec3_approx_eq(result, Vec3::new(expected, expected, 0.0));
+    }
+
+    #[test]
+    fn cross_respects_right_hand_rule() {
+        assert_eq!(Vec3::RIGHT.cross(Vec3::UP), Vec3::BACKWARD);
+        assert_eq!(Vec3::UP.cross(Vec3::RIGHT), Vec3::FORWARD);
+    }
+
+    #[test]
+    fn length_stable_handles_zero_and_regular_vectors() {
+        assert_eq!(Vec3::ZERO.length_stable(), 0.0);
+        assert_eq!(Vec3::RIGHT.length_stable(), 1.0);
+
+        let length = Vec3::new(2.0, 3.0, 6.0).length_stable();
+        assert!((length - 7.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn length_stable_handles_large_vectors() {
+        let length = Vec3::new(1e30, 1e30, 1e30).length_stable();
+
+        assert!(length.is_finite());
+        assert!((length / 1e30 - 3.0_f32.sqrt()).abs() < 1e-6);
+    }
+
+    #[test]
+    fn length_stable_handles_subnormal_values() {
+        let value = f32::from_bits(1);
+        let length = Vec3::new(value, value, 0.0).length_stable();
+
+        assert!(length > 0.0);
+        assert!(length.is_finite());
+    }
+
+    #[test]
+    fn length_stable_returns_nan_for_non_finite_vectors() {
+        assert!(Vec3::new(f32::NAN, 0.0, 0.0).length_stable().is_nan());
+        assert!(Vec3::new(f32::INFINITY, 0.0, 0.0).length_stable().is_nan());
     }
 }

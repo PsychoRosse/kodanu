@@ -19,7 +19,9 @@ macro_rules! impl_bundle {
     };
 }
 
+impl_bundle!(A);
 impl_bundle!(A, B);
+impl_bundle!(A, B, C);
 impl_bundle!(A, B, C, D);
 impl_bundle!(A, B, C, D, E);
 impl_bundle!(A, B, C, D, E, F);

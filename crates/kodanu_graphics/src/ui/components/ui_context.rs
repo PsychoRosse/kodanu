@@ -7,12 +7,9 @@ pub struct UiContext {
 
 impl Default for UiContext {
     fn default() -> Self {
-        let mut nodes = Vec::new();
-        nodes.push(Some(Node::new(Style::default())));
-
         Self {
             allocator: NodeAllocator::default(),
-            nodes,
+            nodes: vec![Some(Node::new(Style::default()))],
         }
     }
 }
@@ -68,10 +65,10 @@ impl UiContext {
 
         let old_parent = self.get(child).and_then(Node::parent);
 
-        if let Some(old_parent) = old_parent {
-            if let Some(node) = self.get_mut(old_parent) {
-                node.remove_child(child);
-            }
+        if let Some(old_parent) = old_parent
+            && let Some(node) = self.get_mut(old_parent)
+        {
+            node.remove_child(child);
         }
 
         self.get_mut(parent)
@@ -102,10 +99,10 @@ impl UiContext {
             subtree.push(current);
         }
 
-        if let Some(parent) = self.get(id).and_then(Node::parent) {
-            if let Some(parent_node) = self.get_mut(parent) {
-                parent_node.remove_child(id);
-            }
+        if let Some(parent) = self.get(id).and_then(Node::parent)
+            && let Some(parent_node) = self.get_mut(parent)
+        {
+            parent_node.remove_child(id);
         }
 
         for current in subtree.into_iter().rev() {

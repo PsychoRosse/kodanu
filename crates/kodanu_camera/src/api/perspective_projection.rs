@@ -5,7 +5,7 @@ use kodanu_math::Mat4;
 /// The projection is defined by a vertical field of view, aspect ratio,
 /// and distances to the near and far clipping planes.
 ///
-/// The field of view is specified in radians.
+/// The field of view is specified in degrees.
 ///
 /// The projection uses a right-handed coordinate system.
 #[derive(Debug, Clone, Copy)]
@@ -25,7 +25,7 @@ impl Default for PerspectiveProjection {
 impl PerspectiveProjection {
     /// Creates a perspective projection.
     ///
-    /// `fov` is the vertical field of view in radians.
+    /// `fov` is the vertical field of view in degrees.
     /// `aspect` is the width-to-height ratio of the viewport.
     /// `near` and `far` define the distances to the clipping planes.
     ///
@@ -57,7 +57,7 @@ impl PerspectiveProjection {
         Mat4::perspective_rh(self.fov, self.aspect, self.near, self.far)
     }
 
-    /// Returns the vertical field of view in radians.
+    /// Returns the vertical field of view in degrees.
     #[must_use]
     pub const fn fov(&self) -> f32 {
         self.fov
@@ -79,5 +79,59 @@ impl PerspectiveProjection {
     #[must_use]
     pub const fn far(&self) -> f32 {
         self.far
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn default_uses_documented_values() {
+        let projection = PerspectiveProjection::default();
+
+        assert_eq!(projection.fov(), 90.0);
+        assert_eq!(projection.aspect(), 1.0);
+        assert_eq!(projection.near(), 0.03);
+        assert_eq!(projection.far(), 1000.0);
+    }
+
+    #[test]
+    fn getters_return_stored_components() {
+        let projection = PerspectiveProjection::new(60.0, 1.5, 0.1, 500.0);
+
+        assert_eq!(projection.fov(), 60.0);
+        assert_eq!(projection.aspect(), 1.5);
+        assert_eq!(projection.near(), 0.1);
+        assert_eq!(projection.far(), 500.0);
+    }
+
+    #[test]
+    fn set_aspect_ratio_updates_aspect() {
+        let mut projection = PerspectiveProjection::default();
+
+        projection.set_aspect_ratio(16.0 / 9.0);
+
+        assert_eq!(projection.aspect(), 16.0 / 9.0);
+    }
+
+    #[test]
+    fn projection_matrix_matches_perspective_rh() {
+        let projection = PerspectiveProjection::new(60.0, 2.0, 0.1, 500.0);
+
+        assert_eq!(
+            projection.projection_matrix(),
+            Mat4::perspective_rh(60.0, 2.0, 0.1, 500.0)
+        );
+    }
+
+    #[test]
+    fn aspect_change_alters_projection_matrix() {
+        let mut projection = PerspectiveProjection::default();
+        let before = projection.projection_matrix();
+
+        projection.set_aspect_ratio(2.0);
+
+        assert_ne!(before, projection.projection_matrix());
     }
 }

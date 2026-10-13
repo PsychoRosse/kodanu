@@ -7,7 +7,7 @@ repository.workspace = true
 homepage.workspace = true
 authors.workspace = true
 
-description = "Mathematics primitives and operations for the Kodanu game engine"
+description = "Mathematics primitives and operations for the Kodanu game engine."
 keywords = ["game-engine", "gamedev", "math", "graphics"]
 categories = ["game-development", "mathematics"]
 

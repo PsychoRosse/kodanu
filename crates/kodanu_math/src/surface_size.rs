@@ -60,6 +60,26 @@ impl SurfaceSize {
     }
 }
 
+impl Default for SurfaceSize {
+    /// Returns the default surface size.
+    ///
+    /// The default dimensions are `640 × 520` pixels.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kodanu_math::SurfaceSize;
+    ///
+    /// let size = SurfaceSize::default();
+    ///
+    /// assert_eq!(size.width(), 640);
+    /// assert_eq!(size.height(), 520);
+    /// ```
+    fn default() -> Self {
+        Self::clamped(640, 520)
+    }
+}
+
 impl SurfaceSize {
     /// Returns the surface width in physical pixels.
     #[must_use]
@@ -77,7 +97,7 @@ impl SurfaceSize {
     ///
     /// The result is always greater than zero.
     #[must_use]
-    pub fn aspect_ratio(self) -> f32 {
+    pub const fn aspect_ratio(self) -> f32 {
         self.width as f32 / self.height as f32
     }
 }

@@ -65,6 +65,17 @@ impl Mat4 {
 }
 
 impl Mat4 {
+    /// Returns `true` if every component is finite.
+    ///
+    /// A component is finite when it is neither `NaN` nor infinite.
+    #[must_use]
+    pub fn is_finite(self) -> bool {
+        self.x_axis.is_finite()
+            && self.y_axis.is_finite()
+            && self.z_axis.is_finite()
+            && self.w_axis.is_finite()
+    }
+
     /// Creates a matrix from four column vectors.
     ///
     /// This is equivalent to [`Self::new`].
@@ -215,6 +226,34 @@ impl Mat4 {
         }
     }
 
+    /// Transforms a point using this matrix.
+    ///
+    /// The point is treated as a homogeneous vector with `w = 1`, and the
+    /// XYZ components of the result are divided by `w`.
+    ///
+    /// Returns `None` if the point or this matrix is not finite, the
+    /// resulting `w` component is zero, or the resulting point is not finite.
+    #[must_use]
+    pub fn try_transform_point3(self, point: Vec3) -> Option<Vec3> {
+        if !point.is_finite() || !self.is_finite() {
+            return None;
+        }
+
+        let result = self * Vec4::new(point.x, point.y, point.z, 1.0);
+
+        if !result.is_finite() || result.w == 0.0 {
+            return None;
+        }
+
+        let point = Vec3::new(
+            result.x / result.w,
+            result.y / result.w,
+            result.z / result.w,
+        );
+
+        point.is_finite().then_some(point)
+    }
+
     /// Transforms a direction vector using this matrix.
     ///
     /// The vector is treated as a homogeneous vector with `w = 0`,
@@ -323,6 +362,22 @@ impl Mat4 {
         )
     }
 
+    /// Returns the inverse of this matrix, or `None` if the determinant
+    /// is not finite or its absolute value is less than or equal to
+    /// `f32::EPSILON`.
+    #[must_use]
+    pub fn try_inverse(self) -> Option<Self> {
+        let determinant = self.determinant();
+
+        if !determinant.is_finite() || determinant.abs() <= f32::EPSILON {
+            return None;
+        }
+
+        let inverse = self.inverse();
+
+        inverse.is_finite().then_some(inverse)
+    }
+
     /// Creates a right-handed perspective projection matrix.
     ///
     /// `fov_y_degrees` is the vertical field of view in degrees.
@@ -386,5 +441,51 @@ impl Mul<Vec4> for Mat4 {
 impl MulAssign for Mat4 {
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn try_inverse_inverts_invertible_matrix() {
+        let matrix = Mat4::from_scale_rotation_translation(
+            Vec3::new(2.0, 0.5, 3.0),
+            Quat::from_axis_angle(Vec3::UP, 30.0),
+            Vec3::new(10.0, -3.0, 5.0),
+        );
+        let inverse = matrix.try_inverse();
+
+        assert!(inverse.is_some());
+
+        let product = matrix * inverse.unwrap_or(Mat4::IDENTITY);
+
+        for (actual, expected) in product
+            .to_array()
+            .into_iter()
+            .zip(Mat4::IDENTITY.to_array())
+        {
+            assert!((actual - expected).abs() < 1e-4, "{actual} != {expected}");
+        }
+    }
+
+    #[test]
+    fn try_inverse_rejects_singular_matrix() {
+        assert_eq!(Mat4::default().try_inverse(), None);
+    }
+
+    #[test]
+    fn try_inverse_rejects_non_finite_determinant() {
+        let matrix = Mat4::from_scale(Vec3::new(f32::INFINITY, 1.0, 1.0));
+
+        assert_eq!(matrix.try_inverse(), None);
+    }
+
+    #[test]
+    fn try_inverse_rejects_zero_scale_axis() {
+        let matrix = Mat4::from_scale(Vec3::new(1.0, 0.0, 1.0));
+
+        assert_eq!(matrix.try_inverse(), None);
     }
 }
