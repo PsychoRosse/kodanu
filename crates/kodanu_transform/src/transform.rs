@@ -179,16 +179,34 @@ impl Transform {
         self.rotation * Vec3::FORWARD
     }
 
+    /// Returns the backward direction of the transform in world space.
+    #[must_use]
+    pub fn backward(&self) -> Vec3 {
+        self.rotation * Vec3::BACKWARD
+    }
+
     /// Returns the right direction of the transform in world space.
     #[must_use]
     pub fn right(&self) -> Vec3 {
         self.rotation * Vec3::RIGHT
     }
 
+    /// Returns the left direction of the transform in world space.
+    #[must_use]
+    pub fn left(&self) -> Vec3 {
+        self.rotation * Vec3::LEFT
+    }
+
     /// Returns the up direction of the transform in world space.
     #[must_use]
     pub fn up(&self) -> Vec3 {
         self.rotation * Vec3::UP
+    }
+
+    /// Returns the down direction of the transform in world space.
+    #[must_use]
+    pub fn down(&self) -> Vec3 {
+        self.rotation * Vec3::DOWN
     }
 }
 
@@ -451,16 +469,24 @@ mod test {
         let mut transform = Transform::default();
 
         assert_eq!(transform.forward(), Vec3::FORWARD);
+        assert_eq!(transform.backward(), Vec3::BACKWARD);
         assert_eq!(transform.right(), Vec3::RIGHT);
+        assert_eq!(transform.left(), Vec3::LEFT);
         assert_eq!(transform.up(), Vec3::UP);
+        assert_eq!(transform.down(), Vec3::DOWN);
 
         let rotation = Quat::from_axis_angle(Vec3::UP, 90.0);
 
         transform.set_rotation(rotation);
 
         assert_eq!(transform.forward(), rotation * Vec3::FORWARD);
+        assert_eq!(transform.backward(), rotation * Vec3::BACKWARD);
         assert_eq!(transform.right(), rotation * Vec3::RIGHT);
+        assert_eq!(transform.left(), rotation * Vec3::LEFT);
         assert_eq!(transform.up(), rotation * Vec3::UP);
+        assert_eq!(transform.down(), rotation * Vec3::DOWN);
         assert_ne!(transform.forward(), Vec3::FORWARD);
+        assert_ne!(transform.backward(), Vec3::BACKWARD);
+        assert_ne!(transform.left(), Vec3::LEFT);
     }
 }

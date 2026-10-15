@@ -12,7 +12,7 @@ Transform components for the [Kodanu](https://github.com/sneakypin/kodanu) game 
 * Inverse transformation matrices
 * Local and world-space translation
 * Local and world-space rotation
-* Forward, right, and up directions
+* Forward, backward, right, left, up, and down directions
 * Transforming points from local space to world space
 * ECS component integration
 
@@ -58,8 +58,11 @@ The transform provides its local basis directions in world space:
 
 ```rust
 let forward = transform.forward();
+let backward = transform.backward();
 let right = transform.right();
+let left = transform.left();
 let up = transform.up();
+let down = transform.down();
 ```
 
 These are useful for movement, cameras, physics, and gameplay systems.

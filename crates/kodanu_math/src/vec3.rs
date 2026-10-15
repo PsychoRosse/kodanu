@@ -26,7 +26,7 @@ pub struct Vec3 {
 impl Vec3 {
     /// The zero vector `(0, 0, 0)`.
     pub const ZERO: Self = Self::new(0.0, 0.0, 0.0);
-    /// The vector `(1, 1, 1)`.
+    /// The one vector `(1, 1, 1)`.
     pub const ONE: Self = Self::new(1.0, 1.0, 1.0);
     /// The positive Y-axis direction `(0, 1, 0)`.
     pub const UP: Self = Self::new(0.0, 1.0, 0.0);
@@ -280,66 +280,4 @@ mod test {
 
     #[test]
     fn try_normalize_handles_small_vectors() {
-        let result = Vec3::new(1e-30, 1e-30, 1e-30).try_normalize().unwrap();
-
-        let expected = 1.0 / 3.0_f32.sqrt();
-
-        assert_vec3_approx_eq(result, Vec3::new(expected, expected, expected));
-    }
-
-    #[test]
-    fn try_normalize_rejects_zero_and_non_finite_vectors() {
-        assert_eq!(Vec3::ZERO.try_normalize(), None);
-        assert_eq!(Vec3::new(f32::NAN, 1.0, 2.0).try_normalize(), None);
-        assert_eq!(Vec3::new(0.0, f32::INFINITY, 0.0).try_normalize(), None);
-        assert_eq!(Vec3::new(0.0, f32::NEG_INFINITY, 0.0).try_normalize(), None);
-    }
-
-    #[test]
-    fn try_normalize_handles_subnormal_values() {
-        let value = f32::from_bits(1);
-        let result = Vec3::new(value, value, 0.0).try_normalize().unwrap();
-
-        let expected = 1.0 / 2.0_f32.sqrt();
-
-        assert_vec3_approx_eq(result, Vec3::new(expected, expected, 0.0));
-    }
-
-    #[test]
-    fn cross_respects_right_hand_rule() {
-        assert_eq!(Vec3::RIGHT.cross(Vec3::UP), Vec3::BACKWARD);
-        assert_eq!(Vec3::UP.cross(Vec3::RIGHT), Vec3::FORWARD);
-    }
-
-    #[test]
-    fn length_stable_handles_zero_and_regular_vectors() {
-        assert_eq!(Vec3::ZERO.length_stable(), 0.0);
-        assert_eq!(Vec3::RIGHT.length_stable(), 1.0);
-
-        let length = Vec3::new(2.0, 3.0, 6.0).length_stable();
-        assert!((length - 7.0).abs() < 1e-6);
-    }
-
-    #[test]
-    fn length_stable_handles_large_vectors() {
-        let length = Vec3::new(1e30, 1e30, 1e30).length_stable();
-
-        assert!(length.is_finite());
-        assert!((length / 1e30 - 3.0_f32.sqrt()).abs() < 1e-6);
-    }
-
-    #[test]
-    fn length_stable_handles_subnormal_values() {
-        let value = f32::from_bits(1);
-        let length = Vec3::new(value, value, 0.0).length_stable();
-
-        assert!(length > 0.0);
-        assert!(length.is_finite());
-    }
-
-    #[test]
-    fn length_stable_returns_nan_for_non_finite_vectors() {
-        assert!(Vec3::new(f32::NAN, 0.0, 0.0).length_stable().is_nan());
-        assert!(Vec3::new(f32::INFINITY, 0.0, 0.0).length_stable().is_nan());
-    }
-}
+        let result

@@ -2,6 +2,6 @@ use kodanu::prelude::*;
 
 fn main() {
     App::default()
-        .with_plugin(AiPlugin)
+        .with_plugin(DevPlugins)
         .run_from(WindowAttributes::default())
 }

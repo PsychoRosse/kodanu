@@ -34,7 +34,7 @@ fn free_camera_system(
 ) {
     for transform in query {
         let direction = transform.forward() * input.axis(Axis::MoveY)
-            + -transform.right() * input.axis(Axis::MoveX)
+            + transform.left() * input.axis(Axis::MoveX)
             + transform.up() * input.axis(Axis::MoveZ);
 
         let yaw = input.axis(Axis::LookX) * settings.sens * time.delta();
