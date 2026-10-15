@@ -2,6 +2,7 @@
 members = [
     "bin",
     "crates/kodanu",
+    "crates/kodanu_ai",
     "crates/kodanu_app",
     "crates/kodanu_camera",
     "crates/kodanu_ecs",
@@ -30,7 +31,7 @@ authors = ["snekypin"]
 winit = { version = "0.31.0-beta.2" }
 wgpu = { version = "30.0.1" }
 
-rapier3d = { version = "0.34.0", features = ["parallel", "simd-stable", "f32"]}
+rapier3d = { version = "0.34.0", features = ["parallel", "simd-stable", "f32"] }
 
 serde = { version = "1.0.228", features = ["derive"] }
 ron = "0.12.2"
@@ -42,7 +43,15 @@ bitflags = { version = "2.13.1" }
 
 raw-window-handle = { version = "0.6.2" }
 
+burn = { version = "0.22", default-features = false,features = [
+    "std",
+    "flex",
+    "autodiff",
+    "optim",
+] }
+
 kodanu = { package = "kodanu", path = "crates/kodanu" }
+kodanu_ai = { package = "kodanu_ai", path = "crates/kodanu_ai" }
 kodanu_app = { package = "kodanu_app", path = "crates/kodanu_app" }
 kodanu_camera = { package = "kodanu_camera", path = "crates/kodanu_camera" }
 kodanu_ecs = { package = "kodanu_ecs", path = "crates/kodanu_ecs" }

@@ -30,27 +30,27 @@ impl DirectLight {
 }
 
 impl DirectLight {
-    pub fn direction(&self) -> Vec3 {
+    pub const fn direction(&self) -> Vec3 {
         self.direction
     }
 
-    pub fn color(&self) -> Color {
+    pub const fn color(&self) -> Color {
         self.color
     }
 
-    pub fn intensity(&self) -> f32 {
+    pub const fn intensity(&self) -> f32 {
         self.intensity
     }
 
-    pub fn set_direction(&mut self, direction: Vec3) {
+    pub const fn set_direction(&mut self, direction: Vec3) {
         self.direction = direction
     }
 
-    pub fn set_color(&mut self, color: Color) {
+    pub const fn set_color(&mut self, color: Color) {
         self.color = color
     }
 
-    pub fn set_intensity(&mut self, intensity: f32) {
+    pub const fn set_intensity(&mut self, intensity: f32) {
         self.intensity = intensity
     }
 }

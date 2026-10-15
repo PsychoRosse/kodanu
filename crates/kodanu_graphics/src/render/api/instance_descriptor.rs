@@ -31,11 +31,11 @@ impl InstanceDescriptor {
 }
 
 impl InstanceDescriptor {
-    pub fn surface_target(&self) -> SurfaceTarget {
+    pub const fn surface_target(&self) -> SurfaceTarget {
         self.target
     }
 
-    pub fn size(&self) -> SurfaceSize {
+    pub const fn size(&self) -> SurfaceSize {
         self.size
     }
 }

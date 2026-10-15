@@ -26,15 +26,15 @@ impl<A> Handle<A> {
 }
 
 impl<A> Handle<A> {
-    pub fn as_usize(&self) -> usize {
+    pub const fn as_usize(&self) -> usize {
         self.index as usize
     }
 
-    pub fn index(&self) -> u32 {
+    pub const fn index(&self) -> u32 {
         self.index
     }
 
-    pub fn gens(&self) -> NonZeroU32 {
+    pub const fn gens(&self) -> NonZeroU32 {
         self.gens
     }
 }

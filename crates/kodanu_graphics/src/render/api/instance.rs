@@ -104,7 +104,7 @@ impl Instance {
 }
 
 impl Instance {
-    pub fn instance_update(event: EventReader<SurfaceSize>, mut instance: ResMut<Instance>) {
+    pub(crate) fn instance_update(event: EventReader<SurfaceSize>, mut instance: ResMut<Instance>) {
         for event in event.iter() {
             instance.resize(*event);
         }
@@ -112,11 +112,11 @@ impl Instance {
 }
 
 impl Instance {
-    pub fn queue(&self) -> &WgpuQueue {
+    pub const fn queue(&self) -> &WgpuQueue {
         &self.queue
     }
 
-    pub fn device(&self) -> &WgpuDevice {
+    pub const fn device(&self) -> &WgpuDevice {
         &self.device
     }
 
@@ -124,29 +124,25 @@ impl Instance {
         WgpuColorTargetState::from(self.config.format).format
     }
 
-    pub fn present(&self, encoder: WgpuCommandEncoder, frame: WgpuSurfaceTexture) {
-        self.queue.submit(once(encoder.finish()));
-        self.queue.present(frame);
-    }
-
-    pub fn create_encoder(&self) -> WgpuCommandEncoder {
-        self.device
-            .create_command_encoder(&WgpuCommandEncoderDescriptor::default())
-    }
-
-    pub fn acquire_frame(&self) -> WgpuCurrentSurfaceTexture {
-        self.surface.get_current_texture()
-    }
-
     pub fn size(&self) -> SurfaceSize {
         SurfaceSize::clamped(self.config.width, self.config.height)
     }
 
-    pub fn resize(&mut self, size: SurfaceSize) {
-        if size.width() == 0 || size.height() == 0 {
-            return;
-        }
+    pub(crate) fn present(&self, encoder: WgpuCommandEncoder, frame: WgpuSurfaceTexture) {
+        self.queue.submit(once(encoder.finish()));
+        self.queue.present(frame);
+    }
 
+    pub(crate) fn create_encoder(&self) -> WgpuCommandEncoder {
+        self.device
+            .create_command_encoder(&WgpuCommandEncoderDescriptor::default())
+    }
+
+    pub(crate) fn acquire_frame(&self) -> WgpuCurrentSurfaceTexture {
+        self.surface.get_current_texture()
+    }
+
+    pub(crate) fn resize(&mut self, size: SurfaceSize) {
         self.config.width = size.width();
         self.config.height = size.height();
 

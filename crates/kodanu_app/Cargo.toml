@@ -26,3 +26,4 @@ kodanu_ecs = { workspace = true }
 kodanu_time = { workspace = true }
 kodanu_math = { workspace = true }
 kodanu_graphics = { workspace = true }
+kodanu_plugins = { workspace = true }

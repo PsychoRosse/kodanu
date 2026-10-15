@@ -23,7 +23,7 @@ impl Default for Mesh {
 }
 
 impl Mesh {
-    pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
+    pub const fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
         Self { vertices, indices }
     }
 }
@@ -37,11 +37,11 @@ impl Mesh {
         &self.indices
     }
 
-    pub fn vertex_count(&self) -> usize {
+    pub const fn vertex_count(&self) -> usize {
         self.vertices.len()
     }
 
-    pub fn index_count(&self) -> usize {
+    pub const fn index_count(&self) -> usize {
         self.indices.len()
     }
 }

@@ -7,10 +7,11 @@ use {
     kodanu_ecs::{Plugin, PluginRegistry, Registry, Scheduler, World, WorldCell},
     kodanu_graphics::{Backend, Instance, InstanceDescriptor},
     kodanu_math::{MousePos, SurfaceSize},
+    kodanu_plugins::DevPlugins,
     kodanu_time::Time,
 };
 
-use pollster::block_on;
+use {pollster::block_on, std::process::exit};
 
 /// The application entry point.
 ///
@@ -58,6 +59,10 @@ impl WindowApplication for App {
         self.world.with_res(block_on(Instance::new(descriptor)));
 
         self.schduler.run_startup(WorldCell::from(&mut self.world));
+
+        if !self.plugins.is_plugin_registered::<DevPlugins>() {
+            exit(0)
+        }
     }
 
     fn event(&mut self, event: WindowEvent, _: WindowId) {

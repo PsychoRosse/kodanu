@@ -34,7 +34,7 @@ impl Vertex {
 }
 
 impl Vertex {
-    pub fn new(position: [f32; 3], normal: [f32; 3], uv: [f32; 2]) -> Self {
+    pub const fn new(position: [f32; 3], normal: [f32; 3], uv: [f32; 2]) -> Self {
         Self {
             position,
             normal,
@@ -54,15 +54,15 @@ impl Vertex {
 }
 
 impl Vertex {
-    pub fn position(&self) -> [f32; 3] {
+    pub const fn position(&self) -> [f32; 3] {
         self.position
     }
 
-    pub fn normal(&self) -> [f32; 3] {
+    pub const fn normal(&self) -> [f32; 3] {
         self.normal
     }
 
-    pub fn uv(&self) -> [f32; 2] {
+    pub const fn uv(&self) -> [f32; 2] {
         self.uv
     }
 }

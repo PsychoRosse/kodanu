@@ -6,13 +6,19 @@ pub struct Material {
 }
 
 impl Material {
-    pub fn color(&self) -> Color {
+    pub const fn new(color: Color) -> Self {
+        Self { color }
+    }
+}
+
+impl Material {
+    pub const fn color(&self) -> Color {
         self.color
     }
 }
 
 impl From<Color> for Material {
-    fn from(value: Color) -> Self {
-        Self { color: value }
+    fn from(color: Color) -> Self {
+        Self::new(color)
     }
 }

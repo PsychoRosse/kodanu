@@ -17,12 +17,10 @@ impl<'w> WorldCell<'w> {
         unsafe { (*self.world.as_ptr()).despawn(entity) }
     }
 
-    pub fn with_component<C: Component>(self, entity: Entity, component: C) -> Self {
+    pub fn with_component<C: Component>(self, entity: Entity, component: C) {
         unsafe {
             (*self.world.as_ptr()).with_component(entity, component);
         }
-
-        self
     }
 
     pub fn remove_component<C: Component>(self, entity: Entity) -> Option<C> {

@@ -28,28 +28,28 @@ impl MeshRenderer {
 }
 
 impl MeshRenderer {
-    pub fn mesh_handle(&self) -> Option<Handle<Mesh>> {
+    pub const fn mesh_handle(&self) -> Option<Handle<Mesh>> {
         self.mesh
     }
 
-    pub fn take_mesh_pending(&mut self) -> Option<Mesh> {
+    pub const fn take_mesh_pending(&mut self) -> Option<Mesh> {
         self.pending_mesh.take()
     }
 
-    pub fn material_handle(&self) -> Option<Handle<Material>> {
+    pub const fn material_handle(&self) -> Option<Handle<Material>> {
         self.material
     }
 
-    pub fn take_material_pending(&mut self) -> Option<Material> {
+    pub const fn take_material_pending(&mut self) -> Option<Material> {
         self.pending_material.take()
     }
 }
 impl MeshRenderer {
-    pub(crate) fn set_mesh_handle(&mut self, handle: Option<Handle<Mesh>>) {
+    pub(crate) const fn set_mesh_handle(&mut self, handle: Option<Handle<Mesh>>) {
         self.mesh = handle
     }
 
-    pub(crate) fn set_material_handle(&mut self, handle: Option<Handle<Material>>) {
+    pub(crate) const fn set_material_handle(&mut self, handle: Option<Handle<Material>>) {
         self.material = handle
     }
 }

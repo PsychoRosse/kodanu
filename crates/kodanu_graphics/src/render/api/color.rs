@@ -32,7 +32,7 @@ impl Color {
 }
 
 impl Color {
-    pub fn get(&self) -> [f32; 4] {
+    pub const fn get(&self) -> [f32; 4] {
         self.value
     }
 }
