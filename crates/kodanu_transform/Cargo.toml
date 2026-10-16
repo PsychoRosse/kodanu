@@ -7,7 +7,7 @@ repository.workspace = true
 homepage.workspace = true
 authors.workspace = true
 
-description = "3D transform components for the Kodanu game engine."
+description = "3D transform component for the Kodanu game engine."
 keywords = ["game-engine", "gamedev", "transform", "graphics"]
 categories = ["game-development"]
 

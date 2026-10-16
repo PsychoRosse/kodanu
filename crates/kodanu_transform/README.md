@@ -2,12 +2,14 @@
 
 Transform components for the [Kodanu](https://github.com/sneakypin/kodanu) game engine.
 
-`kodanu_transform` provides [`Transform`](https://docs.rs/kodanu_transform/latest/kodanu_transform/struct.Transform.html), an ECS component used to describe the position, rotation, and scale of entities in 3D space, and [`Space`](https://docs.rs/kodanu_transform/latest/kodanu_transform/enum.Space.html), which selects the space a transformation is applied in.
+`kodanu_transform` provides [`Transform`](https://docs.rs/kodanu_transform/latest/kodanu_transform/struct.Transform.html), an ECS component used to describe the position, rotation, and scale of entities in 3D space, [`Space`](https://docs.rs/kodanu_transform/latest/kodanu_transform/enum.Space.html), which selects the space a transformation is applied in, and [`TransformError`](https://docs.rs/kodanu_transform/latest/kodanu_transform/enum.TransformError.html), the error reported by fallible operations.
 
 ## Features
 
 * Position, rotation, and scale
 * Validating constructor with rotation normalization
+* Validating `try_*` constructors, setters, and point transformation
+* `Result`-based translation and rotation with `TransformError`
 * Transformation matrices
 * Inverse transformation matrices
 * Local and world-space translation
@@ -21,7 +23,10 @@ Transform components for the [Kodanu](https://github.com/sneakypin/kodanu) game 
 Create a transform:
 
 ```rust
-use {kodanu_math::{Quat, Vec3}, kodanu_transform::{Space, Transform}};
+use {
+    kodanu_math::{Quat, Vec3}, 
+    kodanu_transform::{Space, Transform}
+};
 
 let transform = Transform::new(
     Vec3::new(10.0, 0.0, 5.0),
@@ -52,6 +57,14 @@ transform.rotate(Vec3::RIGHT, angle, Space::Local);
 
 `Space::Local` operations use the transform's current rotation, `Space::Global` operations do not.
 
+The unchecked `translate` and `rotate` store the computed result without validation. Their `try_` counterparts validate the input and return `Result<(), TransformError>` without modifying the transform when validation fails:
+
+```rust
+let result = transform.try_rotate(Vec3::ZERO, 90.0, Space::Global);
+
+assert_eq!(result, Err(TransformError::ZeroAxis));
+```
+
 ## Directions
 
 The transform provides its local basis directions in world space:
@@ -81,7 +94,9 @@ Points can be transformed from local space into world space:
 let world_point = transform.transform_point(local_point);
 ```
 
-The inverse transformation is available through the inverse matrix API.
+The fallible `try_transform_point` performs the same operation and returns `None` if the point or the resulting world-space point is not finite.
+
+The inverse transformation matrix is available through `unchecked_inverse_matrix`, which does not check invertibility, and `try_inverse_matrix`, which returns `None` when the matrix is singular.
 
 ## ECS
 
@@ -89,7 +104,7 @@ The inverse transformation is available through the inverse matrix API.
 
 ```rust
 fn movement_system(mut transforms: Query<Write<Transform>>) {
-    for mut transform in transforms {
+    for transform in transforms {
         transform.translate(Vec3::FORWARD, Space::Global);
     }
 }

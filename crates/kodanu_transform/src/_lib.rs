@@ -9,15 +9,16 @@
 
 mod space;
 mod transform;
+mod transform_error;
 
 /// Commonly used types from `kodanu_transform`.
 ///
 /// ```
 /// use kodanu_transform::prelude::*;
-/// // or explicitly: `use kodanu_transform::Transform;`
+/// // or explicitly: `use kodanu_transform::{Space, Transform, TransformError};`
 /// ```
 pub mod prelude {
-    pub use crate::{Space, Transform};
+    pub use crate::{Space, Transform, TransformError};
 }
 
-pub use {space::Space, transform::Transform};
+pub use {space::Space, transform::Transform, transform_error::TransformError};

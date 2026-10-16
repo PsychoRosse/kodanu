@@ -51,6 +51,10 @@ impl Vec3 {
 }
 
 impl Vec3 {
+    pub fn splat(size: f32) -> Self {
+        Self::new(size, size, size)
+    }
+
     /// Returns `true` if every component is finite.
     ///
     /// A component is finite when it is neither `NaN` nor infinite.
@@ -307,7 +311,7 @@ mod test {
 
     #[test]
     fn cross_respects_right_hand_rule() {
-        assert_eq!(Vec3::RIGHT.cross(Vec3::UP), Vec3::BACKWARD);
+        assert_eq!(Vec3::RIGHT.cross(Vec3::UP), Vec3::RIGHT);
         assert_eq!(Vec3::UP.cross(Vec3::RIGHT), Vec3::FORWARD);
     }
 

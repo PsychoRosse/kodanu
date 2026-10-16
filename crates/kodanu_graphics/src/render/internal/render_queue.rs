@@ -59,7 +59,7 @@ impl RenderQueue {
                 GpuModel::new(
                     instance.device(),
                     storage.expect_get::<ModelLayout>(),
-                    transform.matrix(),
+                    transform.matrix_from_scale_rotation_translation(),
                 ),
             ))
         }

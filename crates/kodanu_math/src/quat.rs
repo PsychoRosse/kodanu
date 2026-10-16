@@ -48,6 +48,8 @@ impl Default for Quat {
 impl Quat {
     /// The identity rotation `(0, 0, 0, 1)`.
     pub const IDENTITY: Self = Self::new(0.0, 0.0, 0.0, 1.0);
+    /// The zero rotation `(0, 0, 0, 0)`.
+    pub const ZERO: Self = Self::new(0.0, 0.0, 0.0, 0.0);
 }
 
 impl Quat {

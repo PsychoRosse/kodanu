@@ -1,7 +1,7 @@
-/// Selects the space in which a transformation is applied.
+/// Selects the coordinate space in which a transformation is applied.
 ///
-/// World-space operations are unaffected by the transform's rotation,
-/// local-space operations are rotated by it.
+/// `Global` applies operations in world space, while `Local` applies
+/// operations relative to the transform's current orientation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Space {
     /// The world space.
