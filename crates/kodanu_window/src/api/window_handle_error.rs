@@ -1,25 +1,9 @@
-use std::{
-    error::Error,
-    fmt::{Display, Formatter, Result},
-};
+use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum WindowHandlerError {
+    #[error("Failed to get window handle")]
     RawWindowHandle,
+    #[error("Failed to get display handle")]
     RawDisplayHandle,
 }
-
-impl Display for WindowHandlerError {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        match self {
-            Self::RawWindowHandle => {
-                write!(f, "Failed to get window handle")
-            }
-            Self::RawDisplayHandle => {
-                write!(f, "Failed to get display handle")
-            }
-        }
-    }
-}
-
-impl Error for WindowHandlerError {}

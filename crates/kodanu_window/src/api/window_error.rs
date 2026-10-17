@@ -1,21 +1,7 @@
-use std::{
-    error::Error,
-    fmt::{Display, Formatter, Result},
-};
+use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum WindowError {
+    #[error("Failed to create window")]
     WindowCreation,
 }
-
-impl Display for WindowError {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        match self {
-            Self::WindowCreation => {
-                write!(f, "Failed to create window")
-            }
-        }
-    }
-}
-
-impl Error for WindowError {}

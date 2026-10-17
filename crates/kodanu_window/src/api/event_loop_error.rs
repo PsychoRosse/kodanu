@@ -1,20 +1,9 @@
-use std::fmt::{Display, Formatter, Result};
+use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum EventLoopError {
+    #[error("Failed to create window event loop")]
     EventLoopCreation,
+    #[error("Failed to run event loop")]
     EventLoopRun,
-}
-
-impl Display for EventLoopError {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        match self {
-            Self::EventLoopCreation => {
-                write!(f, "Failed to create window event loop")
-            }
-            Self::EventLoopRun => {
-                write!(f, "Failed to run event loop")
-            }
-        }
-    }
 }

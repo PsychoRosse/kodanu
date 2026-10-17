@@ -9,6 +9,7 @@ path = "src/_lib.rs"
 [dependencies]
 winit = { workspace = true }
 raw-window-handle = { workspace = true }
+thiserror = { workspace = true }
 
 kodanu_math = { workspace = true }
 kodanu_ecs = { workspace = true }
