@@ -43,10 +43,11 @@ impl Collider {
 }
 
 impl Collider {
+    #[inline]
     pub fn handle(&self) -> Option<RapierColliderHandle> {
         self.handle
     }
-
+    #[inline]
     pub fn shape(&self) -> &RapierColliderShape {
         &self.shape
     }

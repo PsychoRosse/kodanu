@@ -34,10 +34,11 @@ impl RigidBody {
 }
 
 impl RigidBody {
+    #[inline]
     pub fn handle(&self) -> Option<RapierRigidBodyHandle> {
         self.handle
     }
-
+    #[inline]
     pub fn body_type(&self) -> RapierRigidBodyType {
         self.body_type
     }
