@@ -3806,6 +3806,7 @@ version = "0.1.0"
 dependencies = [
  "kodanu_ecs",
  "kodanu_graphics",
+ "kodanu_macros",
  "kodanu_math",
  "kodanu_transform",
  "rapier3d",

@@ -1,11 +1,14 @@
-use thiserror::Error;
+use {
+    serde::{Deserialize, Serialize},
+    thiserror::Error,
+};
 
 /// Errors returned by the fallible operations of [`crate::Transform`].
 ///
 /// [`crate::Transform::try_translate`] and [`crate::Transform::try_rotate`]
 /// validate their input and report the reason an operation was rejected
 /// through this type instead of modifying the transform.
-#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum TransformError {
     /// The translation contains non-finite values.
     #[error("Translation contains non-finite values")]

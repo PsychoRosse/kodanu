@@ -23,14 +23,12 @@ pub struct Time {
     /// The returned value is clamped to [`Self::max_delta`].
     #[getter(copy, must_use)]
     delta: f32,
-
     /// Returns the total elapsed time in seconds.
     ///
     /// This value is measured by the time driver and is not affected
     /// by [`Self::max_delta`].
     #[getter(copy, must_use)]
     elapsed: f32,
-
     /// Returns the maximum duration that can be reported by [`Self::delta`],
     /// in seconds.
     #[getter(copy, must_use)]
