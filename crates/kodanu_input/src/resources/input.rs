@@ -2,6 +2,7 @@ use crate::{ActionMap, Axis, DeviceState};
 
 use {
     kodanu_ecs::{EventReader, ResMut, Resource},
+    kodanu_macros::Getters,
     kodanu_math::{MouseDelta, MousePos, MouseScroll, MouseScrollDelta},
 };
 
@@ -9,13 +10,16 @@ pub use kodanu_window::{
     Button, ButtonStatus, Key, KeyStatus, KeyboardEvent, MouseEvent, MouseWheelEvent,
 };
 
-#[derive(Resource, Default)]
+#[derive(Getters, Resource, Default)]
 pub struct Input {
     action_map: ActionMap,
     keyboard: DeviceState<Key>,
     mouse: DeviceState<Button>,
+    #[getter(copy, must_use)]
     mouse_delta: MouseDelta,
+    #[getter(copy, must_use)]
     mouse_wheel_delta: MouseScrollDelta,
+    #[getter(copy, must_use)]
     mouse_position: Option<MousePos>,
 }
 
@@ -99,54 +103,49 @@ impl Input {
 }
 
 impl Input {
+    #[inline]
     pub fn comb_pressed(&self, keys: &[Key]) -> bool {
         self.keyboard.contains_all(keys)
     }
 
+    #[inline]
     pub fn comb_just_pressed(&self, keys: &[Key]) -> bool {
         self.keyboard.contains_all(keys)
             && keys.iter().any(|key| self.keyboard.is_just_pressed(*key))
     }
 
+    #[inline]
     pub fn axis(&self, axis: Axis) -> f32 {
         self.action_map.axis(axis, self)
     }
 
+    #[inline]
     pub fn key_pressed(&self, key: Key) -> bool {
         self.keyboard.is_pressed(key)
     }
 
+    #[inline]
     pub fn key_just_pressed(&self, key: Key) -> bool {
         self.keyboard.is_just_pressed(key)
     }
 
+    #[inline]
     pub fn key_just_released(&self, key: Key) -> bool {
         self.keyboard.is_just_released(key)
     }
 
+    #[inline]
     pub fn button_pressed(&self, button: Button) -> bool {
         self.mouse.is_pressed(button)
     }
 
+    #[inline]
     pub fn button_just_pressed(&self, button: Button) -> bool {
         self.mouse.is_just_pressed(button)
     }
 
+    #[inline]
     pub fn button_just_released(&self, button: Button) -> bool {
         self.mouse.is_just_released(button)
-    }
-}
-
-impl Input {
-    pub fn mouse_position(&self) -> Option<MousePos> {
-        self.mouse_position
-    }
-
-    pub fn mouse_delta(&self) -> MouseDelta {
-        self.mouse_delta
-    }
-
-    pub fn wheel_delta(&self) -> MouseScrollDelta {
-        self.mouse_wheel_delta
     }
 }

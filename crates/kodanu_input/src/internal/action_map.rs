@@ -23,6 +23,7 @@ impl ActionMap {
 }
 
 impl ActionMap {
+    #[inline]
     pub fn axis(&self, axis: Axis, input: &Input) -> f32 {
         let Some(binding) = self.axis.get(&axis) else {
             return 0.0;

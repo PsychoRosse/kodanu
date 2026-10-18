@@ -27,35 +27,42 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
 }
 
 impl<D: Eq + Hash + Copy> DeviceState<D> {
+    #[inline]
     pub fn clear(&mut self) {
         self.just_pressed.clear();
         self.just_released.clear();
     }
 
+    #[inline]
     pub fn contains_all(&self, buttons: &[D]) -> bool {
         buttons.iter().all(|button| self.pressed.contains(button))
     }
 
+    #[inline]
     pub fn press(&mut self, button: D) {
         if self.pressed.insert(button) {
             self.just_pressed.insert(button);
         }
     }
 
+    #[inline]
     pub fn release(&mut self, button: D) {
         if self.pressed.remove(&button) {
             self.just_released.insert(button);
         }
     }
 
+    #[inline]
     pub fn is_pressed(&self, button: D) -> bool {
         self.pressed.contains(&button)
     }
 
+    #[inline]
     pub fn is_just_pressed(&self, button: D) -> bool {
         self.just_pressed.contains(&button)
     }
 
+    #[inline]
     pub fn is_just_released(&self, button: D) -> bool {
         self.just_released.contains(&button)
     }
