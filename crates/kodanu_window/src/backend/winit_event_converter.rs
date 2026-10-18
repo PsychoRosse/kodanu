@@ -44,6 +44,7 @@ impl WinitEventConverter {
                         MouseScroll::Pixels(MouseScrollDelta::new(delta.x as f32, delta.y as f32)),
                     )))
                 }
+                _ => None,
             },
             _ => Some(WindowEvent::Unknown),
         }

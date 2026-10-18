@@ -28,7 +28,7 @@ homepage = "https://github.com/sneakypin/kodanu"
 authors = ["snekypin"]
 
 [workspace.dependencies]
-winit = { version = "0.31.0-beta.2" }
+winit = { version = "0.31.0-beta.3" }
 wgpu = { version = "30.0.1" }
 
 rapier3d = { version = "0.34.0", features = ["parallel", "simd-stable", "f32"] }
