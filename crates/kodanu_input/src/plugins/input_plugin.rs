@@ -9,6 +9,7 @@ impl Plugin for InputPlugin {
         registry
             .with_res(Input::with_capacity(256))
             .with_system(Stage::PreInputUpdate, Input::pre_input_system)
+            .with_system(Stage::PreInputUpdate, Input::update_input_time)
             .with_system(Stage::PostInputUpdate, Input::post_input_system);
     }
 }

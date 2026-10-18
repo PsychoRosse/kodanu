@@ -32,6 +32,10 @@ fn free_camera_system(
     input: Res<Input>,
     time: Res<Time>,
 ) {
+    if input.key_held_for(kodanu_window::Key::A, 2.0) {
+        println!("wqe")
+    }
+
     for transform in query {
         let direction = transform.forward() * input.axis(Axis::MoveY)
             + transform.left() * input.axis(Axis::MoveX)

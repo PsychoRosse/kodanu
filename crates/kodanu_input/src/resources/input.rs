@@ -1,9 +1,12 @@
+use std::time::Duration;
+
 use crate::{ActionMap, Axis, DeviceState};
 
 use {
-    kodanu_ecs::{EventReader, ResMut, Resource},
+    kodanu_ecs::{EventReader, Res, ResMut, Resource},
     kodanu_macros::Getters,
     kodanu_math::{MouseDelta, MousePos, MouseScroll, MouseScrollDelta},
+    kodanu_time::Time,
 };
 
 pub use kodanu_window::{
@@ -100,9 +103,24 @@ impl Input {
         input.mouse_delta = MouseDelta::default();
         input.mouse_wheel_delta = MouseScrollDelta::default();
     }
+
+    pub(crate) fn update_input_time(mut input: ResMut<Input>, time: Res<Time>) {
+        input.keyboard.update(time.delta());
+        input.mouse.update(time.delta());
+    }
 }
 
 impl Input {
+    #[must_use]
+    pub fn key_held_for(&self, key: Key, seconds: f32) -> bool {
+        if !seconds.is_finite() || seconds < 0.0 {
+            return false;
+        }
+
+        self.keyboard
+            .is_held_for(key, Duration::from_secs_f32(seconds))
+    }
+
     #[inline]
     pub fn comb_pressed(&self, keys: &[Key]) -> bool {
         self.keyboard.contains_all(keys)

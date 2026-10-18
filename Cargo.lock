@@ -3782,6 +3782,7 @@ dependencies = [
  "kodanu_ecs",
  "kodanu_macros",
  "kodanu_math",
+ "kodanu_time",
  "kodanu_window",
 ]
 

@@ -1,9 +1,14 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+    time::Duration,
+};
 
 pub(crate) struct DeviceState<D: Eq + Hash + Copy> {
     pressed: HashSet<D>,
     just_pressed: HashSet<D>,
     just_released: HashSet<D>,
+    held_for: HashMap<D, Duration>,
 }
 
 impl<D: Eq + Hash + Copy> Default for DeviceState<D> {
@@ -12,6 +17,7 @@ impl<D: Eq + Hash + Copy> Default for DeviceState<D> {
             pressed: HashSet::default(),
             just_pressed: HashSet::default(),
             just_released: HashSet::default(),
+            held_for: HashMap::default(),
         }
     }
 }
@@ -22,6 +28,7 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
             pressed: HashSet::with_capacity(capacity),
             just_pressed: HashSet::with_capacity(capacity),
             just_released: HashSet::with_capacity(capacity),
+            held_for: HashMap::with_capacity(capacity),
         }
     }
 }
@@ -42,6 +49,7 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
     pub fn press(&mut self, button: D) {
         if self.pressed.insert(button) {
             self.just_pressed.insert(button);
+            self.held_for.insert(button, Duration::ZERO);
         }
     }
 
@@ -49,6 +57,7 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
     pub fn release(&mut self, button: D) {
         if self.pressed.remove(&button) {
             self.just_released.insert(button);
+            self.held_for.remove(&button);
         }
     }
 
@@ -65,5 +74,21 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
     #[inline]
     pub fn is_just_released(&self, button: D) -> bool {
         self.just_released.contains(&button)
+    }
+
+    #[inline]
+    pub fn is_held_for(&self, button: D, duration: Duration) -> bool {
+        self.held_for
+            .get(&button)
+            .is_some_and(|elapsed| *elapsed >= duration)
+    }
+
+    #[inline]
+    pub fn update(&mut self, delta: f32) {
+        let delta = Duration::from_secs_f32(delta);
+
+        for elapsed in self.held_for.values_mut() {
+            *elapsed += delta;
+        }
     }
 }
