@@ -32,6 +32,10 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
         self.just_released.clear();
     }
 
+    pub fn contains_all(&self, buttons: &[D]) -> bool {
+        buttons.iter().all(|button| self.pressed.contains(button))
+    }
+
     pub fn press(&mut self, button: D) {
         if self.pressed.insert(button) {
             self.just_pressed.insert(button);

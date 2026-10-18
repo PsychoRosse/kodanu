@@ -99,6 +99,15 @@ impl Input {
 }
 
 impl Input {
+    pub fn comb_pressed(&self, keys: &[Key]) -> bool {
+        self.keyboard.contains_all(keys)
+    }
+
+    pub fn comb_just_pressed(&self, keys: &[Key]) -> bool {
+        self.keyboard.contains_all(keys)
+            && keys.iter().any(|key| self.keyboard.is_just_pressed(*key))
+    }
+
     pub fn axis(&self, axis: Axis) -> f32 {
         self.action_map.axis(axis, self)
     }
