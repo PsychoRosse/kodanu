@@ -1,7 +1,7 @@
 //! Spatial transformations for entities in the Kodanu engine.
 //!
-//! This crate provides [`crate::Transform`], a component that describes an entity's
-//! position, rotation, and scale in 3D space, and [`crate::Space`], which selects
+//! This crate provides [`Transform`], a component that describes an entity's
+//! position, rotation, and scale in 3D space, and [`Space`], which selects
 //! the space a transformation is applied in.
 
 #![warn(missing_docs)]

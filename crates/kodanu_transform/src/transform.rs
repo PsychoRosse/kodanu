@@ -348,8 +348,8 @@ impl Transform {
 impl Transform {
     /// Translates the transform by the given translation.
     ///
-    /// In [`Space::Global`] the translation is applied as is, in
-    /// [`Space::Local`] it is rotated by the transform's current rotation
+    /// In [`crate::Space::Global`] the translation is applied as is, in
+    /// [`crate::Space::Local`] it is rotated by the transform's current rotation
     /// first.
     ///
     /// The translation is used as given. Use [`Self::try_translate`] to
@@ -380,10 +380,10 @@ impl Transform {
     /// transform unchanged if the input or the resulting position is
     /// invalid.
     ///
-    /// Returns [`TransformError::NonFiniteTranslation`] if the translation
-    /// is not finite, [`TransformError::InvalidRotation`] if `space` is
-    /// [`Space::Local`] and the rotation cannot be normalized, and
-    /// [`TransformError::NonFinitePosition`] if the resulting position is
+    /// Returns [`crate::TransformError::NonFiniteTranslation`] if the translation
+    /// is not finite, [`crate::TransformError::InvalidRotation`] if `space` is
+    /// [`crate::Space::Local`] and the rotation cannot be normalized, and
+    /// [`crate::TransformError::NonFinitePosition`] if the resulting position is
     /// not finite.
     ///
     /// # Examples
@@ -428,8 +428,8 @@ impl Transform {
     /// Rotates the transform around the given axis by the given angle.
     ///
     /// The angle is in degrees and the axis is normalized before use.
-    /// In [`Space::Global`] the rotation is applied before the transform's
-    /// current rotation, in [`Space::Local`] after it.
+    /// In [`crate::Space::Global`] the rotation is applied before the transform's
+    /// current rotation, in [`crate::Space::Local`] after it.
     ///
     /// The values are used as given. Use [`Self::try_rotate`] to reject
     /// invalid input.
@@ -461,10 +461,10 @@ impl Transform {
     /// transform unchanged if the input or the resulting rotation is
     /// invalid.
     ///
-    /// Returns [`TransformError::NonFiniteAxis`] if the axis is not
-    /// finite, [`TransformError::NonFiniteAngle`] if the angle is not
-    /// finite, [`TransformError::ZeroAxis`] if the axis is zero, and
-    /// [`TransformError::InvalidRotation`] if the transform's rotation or
+    /// Returns [`crate::TransformError::NonFiniteAxis`] if the axis is not
+    /// finite, [`crate::TransformError::NonFiniteAngle`] if the angle is not
+    /// finite, [`crate::TransformError::ZeroAxis`] if the axis is zero, and
+    /// [`crate::TransformError::InvalidRotation`] if the transform's rotation or
     /// the resulting rotation cannot be normalized.
     ///
     /// # Examples
