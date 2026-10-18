@@ -1,35 +1,71 @@
 # kodanu_time
 
-Time management for the Kodanu game engine.
+Time management and frame timing for the [Kodanu](https://github.com/sneakypin/kodanu) game engine.
 
-This crate provides:
+`kodanu_time` provides [`Time`](https://docs.rs/kodanu_time/latest/kodanu_time/struct.Time.html), the ECS resource that carries frame timing information, and [`TimePlugin`](https://docs.rs/kodanu_time/latest/kodanu_time/struct.TimePlugin.html), which registers the resource and the system that refreshes it.
 
-* [`Time`](https://docs.rs/kodanu_time/latest/kodanu_time/struct.Time.html), the engine's time resource
-* [`TimePlugin`](https://docs.rs/kodanu_time/latest/kodanu_time/struct.TimePlugin.html), which integrates time updates with the ECS
-* frame delta time
-* elapsed engine time
-* delta-time clamping
+## Features
+
+* Frame delta time
+* Elapsed time since startup
+* Delta-time clamping
+* Serializable time resource
+* ECS integration
 
 ## Usage
 
-```rust
-use kodanu_time::TimePlugin;
+Add `kodanu_time` to your dependencies:
 
-app.add_plugin(TimePlugin);
+```toml
+[dependencies]
+kodanu_time = "1.0.0"
 ```
 
-Systems can access the [`Time`](https://docs.rs/kodanu_time/latest/kodanu_time/struct.Time.html) resource through the ECS:
+Register the plugin in the application:
 
 ```rust
+App::default()
+    .with_plugin(TimePlugin)
+    .run_from(WindowAttributes::default());
+```
+
+Import the commonly used types through the prelude:
+
+```rust
+use kodanu_time::prelude::*;
+```
+
+Systems access the time resource through the ECS:
+
+```rust
+use kodanu_ecs::Res;
+use kodanu_time::Time;
+
 fn update(time: Res<Time>) {
     let delta = time.delta();
 
     // Update game state.
+    let _ = delta;
 }
 ```
 
-`delta()` and `elapsed()` return time in seconds as `f32`.
+`delta()`, `elapsed()`, and `max_delta()` return time in seconds as `f32`.
+
+## Delta Clamping
+
+Frame durations are clamped to `max_delta()`, which defaults to 200 ms. This keeps unusually long frames, such as debugger pauses or window dragging, from destabilizing the simulation:
+
+```rust
+time.set_max_delta(0.1);
+```
+
+Setting the maximum to `0.0` makes `delta()` return zero for every frame.
 
 ## License
 
-MIT OR Apache-2.0
+Licensed under either of:
+
+* MIT License
+* Apache License, Version 2.0
+
+at your option.

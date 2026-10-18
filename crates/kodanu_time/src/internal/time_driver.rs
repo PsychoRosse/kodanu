@@ -36,7 +36,7 @@ impl TimeDriver {
     ///
     /// The returned frame duration is not clamped. Clamping is handled
     /// by [`crate::Time`].
-    pub(crate) fn update(&mut self) -> (Duration, Duration) {
+    pub(crate) fn update(&mut self) -> (f32, f32) {
         let now = Instant::now();
 
         let delta = now
@@ -49,6 +49,6 @@ impl TimeDriver {
 
         self.last = now;
 
-        (delta, elapsed)
+        (delta.as_secs_f32(), elapsed.as_secs_f32())
     }
 }

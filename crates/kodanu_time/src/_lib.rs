@@ -19,7 +19,6 @@
 //! fn movement_system(time: Res<Time>) {
 //!     let delta = time.delta();
 //!     // Update movement using the frame duration.
-//!     let _ = delta;
 //! }
 //! ```
 

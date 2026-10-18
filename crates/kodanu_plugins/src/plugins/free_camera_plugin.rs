@@ -27,15 +27,11 @@ impl Plugin for FreeCameraPlugin {
 
 /// Moves and rotates the active camera using the input axes.
 fn free_camera_system(
-    query: Query<Write<Transform>, With<ActiveCamera>>,
-    settings: Res<CameraSettings>,
-    input: Res<Input>,
     time: Res<Time>,
+    input: Res<Input>,
+    settings: Res<CameraSettings>,
+    query: Query<Write<Transform>, With<ActiveCamera>>,
 ) {
-    if input.key_held_for(kodanu_window::Key::A, 2.0) {
-        println!("wqe")
-    }
-
     for transform in query {
         let direction = transform.forward() * input.axis(Axis::MoveY)
             + transform.left() * input.axis(Axis::MoveX)

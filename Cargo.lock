@@ -3832,6 +3832,7 @@ name = "kodanu_time"
 version = "1.0.0"
 dependencies = [
  "kodanu_ecs",
+ "kodanu_macros",
  "serde",
 ]
 
