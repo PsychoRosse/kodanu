@@ -3,8 +3,8 @@
 //! This crate provides camera components, projection types, and camera-related
 //! settings for rendering scenes in 3D.
 //!
-//! The main types are [`crate::Camera`], [`crate::Projection`], and
-//! [`crate::PerspectiveProjection`].
+//! The main types are [`Camera`], [`Projection`], and
+//! [`PerspectiveProjection`].
 //!
 //! # Examples
 //!

@@ -1,6 +1,6 @@
 # kodanu_camera
 
-Camera and projection components for the [Kodanu](https://github.com/sneakypin/kodanu) game engine.
+Camera and projection components for the kodanu game engine.
 
 `kodanu_camera` provides camera components, projection types, and runtime settings for 3D rendering.
 
@@ -64,7 +64,7 @@ let projection_matrix = camera.projection_matrix();
 
 ## Active Camera
 
-Use [`ActiveCamera`](https://docs.rs/kodanu_camera/latest/kodanu_camera/struct.ActiveCamera.html) to mark the entity that should be used as the active rendering camera:
+Use [`ActiveCamera`] to mark the entity that should be used as the active rendering camera:
 
 ```rust
 commands.spawn((
@@ -77,7 +77,7 @@ The component does not store any state itself. It acts as a marker that can be q
 
 ## Camera Settings
 
-[`CameraSettings`](https://docs.rs/kodanu_camera/latest/kodanu_camera/struct.CameraSettings.html) stores runtime parameters used by camera controllers:
+[`CameraSettings`] stores runtime parameters used by camera controllers:
 
 ```rust
 let settings = CameraSettings::new(100.0, 15.0);
