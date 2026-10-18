@@ -37,14 +37,14 @@ impl RigidBody {
 
 impl RigidBody {
     pub(crate) fn builder(&self, transform: &Transform) -> RapierRigidBodyBuilder {
-        let (axis, angle) = transform.rotation().to_axis_angle();
+        let (axis, angle) = transform.rotation.to_axis_angle();
 
         let angle = angle.to_radians();
 
         let position = RapierVector::new(
-            transform.position().x,
-            transform.position().y,
-            transform.position().z,
+            transform.position.x,
+            transform.position.y,
+            transform.position.z,
         );
 
         let ang = RapierAngVector::new(axis.x * angle, axis.y * angle, axis.z * angle);

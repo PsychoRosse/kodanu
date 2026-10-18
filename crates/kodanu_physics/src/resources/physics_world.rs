@@ -1,15 +1,20 @@
-use crate::{Collider, RigidBody};
-
-use rapier3d::prelude::{
-    PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3, RigidBodyType as RapierRigidBodyType,
-};
-
-use rapier3d::math::{Rot3 as RapierRot3, Vec3 as RapierVec3};
+use crate::{Collider, Hit, RigidBody};
 
 pub use {
     kodanu_ecs::{Query, Read, Res, ResMut, Resource, Write},
     kodanu_math::{Quat, Vec3},
     kodanu_transform::Transform,
+};
+
+use rapier3d::{
+    math::{Rot3 as RapierRot3, Vec3 as RapierVec3, Vector as RapierVector},
+    parry::query::Ray as RapierRay,
+    pipeline::QueryFilter as RapierQueryFilter,
+};
+
+use rapier3d::prelude::{
+    PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3, Real as RapierReal,
+    RigidBodyType as RapierRigidBodyType,
 };
 
 #[derive(Resource, Default)]
@@ -34,6 +39,56 @@ impl PhysicsWorld {
             self.physics.remove_collider(handle);
             collider.set_handle(None);
         }
+    }
+
+    pub fn raycast(&self, origin: Vec3, direction: Vec3, max_distance: f32) -> Option<Hit> {
+        if !max_distance.is_finite() || max_distance <= 0.0 {
+            return None;
+        }
+
+        if !origin.is_finite() || !direction.is_finite() {
+            return None;
+        }
+
+        let length_squared = direction.length_squared();
+
+        if length_squared <= f32::EPSILON {
+            return None;
+        }
+
+        let inv_length = length_squared.sqrt().recip();
+
+        let origin = RapierVector::new(
+            origin.x as RapierReal,
+            origin.y as RapierReal,
+            origin.z as RapierReal,
+        );
+
+        let direction = RapierVector::new(
+            direction.x as RapierReal * inv_length,
+            direction.y as RapierReal * inv_length,
+            direction.z as RapierReal * inv_length,
+        );
+
+        let ray = RapierRay::new(origin, direction);
+
+        let query = self.physics.broad_phase.as_query_pipeline(
+            self.physics.narrow_phase.query_dispatcher(),
+            &self.physics.bodies,
+            &self.physics.colliders,
+            RapierQueryFilter::default(),
+        );
+
+        let (_, intersection) = query.cast_ray_and_get_normal(&ray, max_distance, true)?;
+
+        let point = ray.point_at(intersection.time_of_impact);
+        let normal = intersection.normal;
+
+        Some(Hit::new(
+            Vec3::new(point.x, point.y, point.z),
+            Vec3::new(normal.x, normal.y, normal.z),
+            intersection.time_of_impact,
+        ))
     }
 }
 
@@ -126,15 +181,15 @@ impl PhysicsWorld {
 
             body.set_next_kinematic_position(RapierPose3::from_parts(
                 RapierVec3::new(
-                    transform.position().x,
-                    transform.position().y,
-                    transform.position().z,
+                    transform.position.x,
+                    transform.position.y,
+                    transform.position.z,
                 ),
                 RapierRot3::from_xyzw(
-                    transform.rotation().x,
-                    transform.rotation().y,
-                    transform.rotation().z,
-                    transform.rotation().w,
+                    transform.rotation.x,
+                    transform.rotation.y,
+                    transform.rotation.z,
+                    transform.rotation.w,
                 ),
             ));
         }

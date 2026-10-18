@@ -2,7 +2,6 @@ use crate::{Space, TransformError};
 
 use {
     kodanu_ecs::Component,
-    kodanu_macros::Getters,
     kodanu_math::{Mat4, Quat, Vec3},
     serde::{Deserialize, Serialize},
 };
@@ -28,16 +27,13 @@ use {
 /// assert_eq!(transform.position(), Vec3::new(10.0, 0.0, 5.0));
 /// assert_eq!(transform.scale(), Vec3::ONE);
 /// ```
-#[derive(Getters, Component, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Transform {
     /// The position of the entity in world space.
-    #[getter(copy, must_use)]
     pub position: Vec3,
     /// The rotation of the entity.
-    #[getter(copy, must_use)]
     pub rotation: Quat,
     /// The scale of the entity, applied before rotation.
-    #[getter(copy, must_use)]
     pub scale: Vec3,
 }
 

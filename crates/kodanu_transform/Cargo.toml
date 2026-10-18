@@ -24,4 +24,3 @@ thiserror = { workspace = true }
 
 kodanu_math = { workspace = true }
 kodanu_ecs = { workspace = true }
-kodanu_macros = { workspace = true }

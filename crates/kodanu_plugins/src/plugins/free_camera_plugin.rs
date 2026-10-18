@@ -3,7 +3,6 @@ pub use {
     kodanu_ecs::{Commands, Plugin, Query, Registry, Res, Stage, With, Write},
     kodanu_input::{Axis, Input},
     kodanu_math::Vec3,
-    kodanu_physics::{Collider, RigidBody},
     kodanu_time::Time,
     kodanu_transform::{Space, Transform},
 };
@@ -49,11 +48,5 @@ fn free_camera_system(
 
 /// Spawns the active camera with a kinematic body and a sphere collider.
 fn free_camera_startup_system(commands: Commands) {
-    commands.spawn((
-        Transform::default(),
-        Camera::default(),
-        Collider::sphere(1.0),
-        RigidBody::kinematic(),
-        ActiveCamera,
-    ));
+    commands.spawn((Transform::default(), Camera::default(), ActiveCamera));
 }
