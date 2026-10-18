@@ -5,12 +5,12 @@
 //!
 //! # Main types
 //!
-//! - [`crate::Vec2`], [`crate::Vec3`], and [`crate::Vec4`] for vector arithmetic.
-//! - [`crate::Quat`] for representing 3D rotations.
-//! - [`crate::Mat4`] for 4 × 4 matrix operations and transformations.
-//! - [`crate::MousePos`], [`crate::MouseDelta`], [`crate::MouseScroll`], and
-//!   [`crate::MouseScrollDelta`] for mouse input data.
-//! - [`crate::SurfaceSize`] and [`crate::WindowSize`] for surface and window dimensions.
+//! - [`Vec2`], [`Vec3`], and [`Vec4`] for vector arithmetic.
+//! - [`Quat`] for representing 3D rotations.
+//! - [`Mat4`] for 4 × 4 matrix operations and transformations.
+//! - [`MousePos`], [`MouseDelta`], [`MouseScroll`], and
+//!   [`MouseScrollDelta`] for mouse input data.
+//! - [`SurfaceSize`] and [`WindowSize`] for surface and window dimensions.
 //!
 //! # Examples
 //!

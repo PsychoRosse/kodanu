@@ -1,6 +1,6 @@
 # kodanu_math
 
-Mathematics primitives and operations for the [Kodanu](https://github.com/sneakypin/kodanu) game engine.
+Mathematics primitives and operations for the kodanu game engine.
 
 `kodanu_math` provides foundational mathematical types and operations used in 2D and 3D graphics, transformations, and game development.
 

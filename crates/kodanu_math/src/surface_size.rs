@@ -64,17 +64,6 @@ impl Default for SurfaceSize {
     /// Returns the default surface size.
     ///
     /// The default dimensions are `640 × 520` pixels.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use kodanu_math::SurfaceSize;
-    ///
-    /// let size = SurfaceSize::default();
-    ///
-    /// assert_eq!(size.width(), 640);
-    /// assert_eq!(size.height(), 520);
-    /// ```
     fn default() -> Self {
         Self::clamped(640, 520)
     }

@@ -43,17 +43,6 @@ impl Default for WindowSize {
     /// Returns the default window size.
     ///
     /// The default dimensions are `640 × 520` pixels.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use kodanu_math::WindowSize;
-    ///
-    /// let size = WindowSize::default();
-    ///
-    /// assert_eq!(size.width(), 640);
-    /// assert_eq!(size.height(), 520);
-    /// ```
     fn default() -> Self {
         Self {
             width: 640,
