@@ -5,11 +5,13 @@ use rapier3d::prelude::{
 
 use rapier3d::math::{AngVector as RapierAngVector, Vector as RapierVector};
 
-use {kodanu_ecs::Component, kodanu_transform::Transform};
+use {kodanu_ecs::Component, kodanu_macros::Getters, kodanu_transform::Transform};
 
-#[derive(Component, Debug)]
+#[derive(Getters, Component, Debug)]
 pub struct RigidBody {
+    #[getter(copy, must_use)]
     handle: Option<RapierRigidBodyHandle>,
+    #[getter(copy, must_use)]
     body_type: RapierRigidBodyType,
 }
 
@@ -30,17 +32,6 @@ impl RigidBody {
 
     pub fn kinematic() -> Self {
         Self::from(RapierRigidBodyType::KinematicPositionBased)
-    }
-}
-
-impl RigidBody {
-    #[inline]
-    pub fn handle(&self) -> Option<RapierRigidBodyHandle> {
-        self.handle
-    }
-    #[inline]
-    pub fn body_type(&self) -> RapierRigidBodyType {
-        self.body_type
     }
 }
 
