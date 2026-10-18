@@ -2,6 +2,7 @@ use crate::{Space, TransformError};
 
 use {
     kodanu_ecs::Component,
+    kodanu_macros::Getters,
     kodanu_math::{Mat4, Quat, Vec3},
     serde::{Deserialize, Serialize},
 };
@@ -27,11 +28,17 @@ use {
 /// assert_eq!(transform.position(), Vec3::new(10.0, 0.0, 5.0));
 /// assert_eq!(transform.scale(), Vec3::ONE);
 /// ```
-#[derive(Component, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Getters, Component, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Transform {
-    position: Vec3,
-    rotation: Quat,
-    scale: Vec3,
+    /// The position of the entity in world space.
+    #[getter(copy, must_use)]
+    pub position: Vec3,
+    /// The rotation of the entity.
+    #[getter(copy, must_use)]
+    pub rotation: Quat,
+    /// The scale of the entity, applied before rotation.
+    #[getter(copy, must_use)]
+    pub scale: Vec3,
 }
 
 impl Default for Transform {
@@ -143,15 +150,6 @@ impl Transform {
 
     /// Sets the world-space position.
     ///
-    /// The value is stored as given. Use [`Self::try_set_position`] to
-    /// reject non-finite positions.
-    #[inline]
-    pub const fn set_position(&mut self, position: Vec3) {
-        self.position = position;
-    }
-
-    /// Sets the world-space position.
-    ///
     /// Returns `false` and leaves the transform unchanged if the position
     /// is not finite.
     #[inline]
@@ -164,15 +162,6 @@ impl Transform {
         self.position = position;
 
         true
-    }
-
-    /// Sets the rotation.
-    ///
-    /// The value is stored as given. Use [`Self::try_set_rotation`] to
-    /// normalize the rotation and reject invalid input.
-    #[inline]
-    pub const fn set_rotation(&mut self, rotation: Quat) {
-        self.rotation = rotation;
     }
 
     /// Sets the rotation.
@@ -225,15 +214,6 @@ impl Transform {
 
     /// Sets the scale.
     ///
-    /// The value is stored as given. Use [`Self::try_set_scale`] to
-    /// reject non-finite scales.
-    #[inline]
-    pub const fn set_scale(&mut self, scale: Vec3) {
-        self.scale = scale;
-    }
-
-    /// Sets the scale.
-    ///
     /// Returns `false` and leaves the transform unchanged if the scale
     /// is not finite.
     #[inline]
@@ -246,27 +226,6 @@ impl Transform {
         self.scale = scale;
 
         true
-    }
-
-    /// Returns the world-space position.
-    #[inline]
-    #[must_use]
-    pub const fn position(&self) -> Vec3 {
-        self.position
-    }
-
-    /// Returns the rotation.
-    #[inline]
-    #[must_use]
-    pub const fn rotation(&self) -> Quat {
-        self.rotation
-    }
-
-    /// Returns the scale.
-    #[inline]
-    #[must_use]
-    pub const fn scale(&self) -> Vec3 {
-        self.scale
     }
 }
 
@@ -693,11 +652,10 @@ mod test {
 
     #[test]
     fn setters_update_components() {
-        let mut transform = Transform::default();
+        let mut transform = Transform::from_position(Vec3::new(1.0, 2.0, 3.0));
 
-        transform.set_position(Vec3::new(1.0, 2.0, 3.0));
-        transform.set_rotation(Quat::from_axis_angle(Vec3::UP, 45.0));
-        transform.set_scale(Vec3::new(2.0, 3.0, 4.0));
+        transform.rotation = Quat::from_axis_angle(Vec3::UP, 45.0);
+        transform.scale = Vec3::new(2.0, 3.0, 4.0);
 
         assert_eq!(transform.position(), Vec3::new(1.0, 2.0, 3.0));
         assert_eq!(transform.rotation(), Quat::from_axis_angle(Vec3::UP, 45.0));
@@ -720,7 +678,8 @@ mod test {
             Vec3::new(2.0, 0.5, 3.0),
         );
 
-        let product = transform.matrix_from_scale_rotation_translation() * transform.unchecked_inverse_matrix();
+        let product = transform.matrix_from_scale_rotation_translation()
+            * transform.unchecked_inverse_matrix();
 
         for (actual, expected) in product
             .to_array()
@@ -740,7 +699,9 @@ mod test {
         );
         let point = Vec3::new(1.5, -2.0, 0.75);
         let via_quat = transform.transform_point(point);
-        let via_matrix = transform.matrix_from_scale_rotation_translation().transform_point3(point);
+        let via_matrix = transform
+            .matrix_from_scale_rotation_translation()
+            .transform_point3(point);
 
         assert!((via_quat - via_matrix).length() < 1e-4);
     }
@@ -821,7 +782,7 @@ mod test {
 
         let rotation = Quat::from_axis_angle(Vec3::UP, 90.0);
 
-        transform.set_rotation(rotation);
+        transform.rotation = rotation;
 
         assert_eq!(transform.forward(), rotation * Vec3::FORWARD);
         assert_eq!(transform.backward(), rotation * Vec3::BACKWARD);
@@ -895,7 +856,7 @@ mod test {
         assert!(transform.try_set_scale(scale));
 
         assert_eq!(transform.position(), position);
-        assert_eq!(transform.rotation(), rotation.normalize());
+        assert_eq!(transform.rotation(), rotation.try_normalize().unwrap());
         assert_eq!(transform.scale(), scale);
 
         let new_position = Vec3::new(4.0, 5.0, 6.0);
@@ -904,7 +865,7 @@ mod test {
         assert!(transform.try_set_position_and_rotation(new_position, new_rotation));
 
         assert_eq!(transform.position(), new_position);
-        assert_eq!(transform.rotation(), new_rotation.normalize());
+        assert_eq!(transform.rotation(), new_rotation.try_normalize().unwrap());
         assert_eq!(transform.scale(), scale);
     }
 

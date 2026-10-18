@@ -2975,6 +2975,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "getters"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "ghash"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3779,6 +3788,9 @@ dependencies = [
 [[package]]
 name = "kodanu_macros"
 version = "0.1.0"
+dependencies = [
+ "getters",
+]
 
 [[package]]
 name = "kodanu_math"
@@ -3827,6 +3839,7 @@ name = "kodanu_transform"
 version = "1.0.0"
 dependencies = [
  "kodanu_ecs",
+ "kodanu_macros",
  "kodanu_math",
  "serde",
  "thiserror 2.0.21",
@@ -3837,6 +3850,7 @@ name = "kodanu_window"
 version = "0.1.0"
 dependencies = [
  "kodanu_ecs",
+ "kodanu_macros",
  "kodanu_math",
  "raw-window-handle",
  "thiserror 2.0.21",

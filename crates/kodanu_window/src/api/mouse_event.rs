@@ -1,25 +1,18 @@
 use crate::{Button, ButtonStatus};
 
-use kodanu_ecs::Event;
+use {kodanu_ecs::Event, kodanu_macros::Getters};
 
-#[derive(Event, Debug, Clone, Copy)]
+#[derive(Getters, Event, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct MouseEvent {
+    #[getter(copy, must_use)]
     button: Button,
+    #[getter(copy, must_use)]
     state: ButtonStatus,
 }
 
 impl MouseEvent {
+    #[inline]
     pub fn new(button: Button, state: ButtonStatus) -> Self {
         Self { button, state }
-    }
-}
-
-impl MouseEvent {
-    pub fn button(&self) -> Button {
-        self.button
-    }
-
-    pub fn state(&self) -> ButtonStatus {
-        self.state
     }
 }

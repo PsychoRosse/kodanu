@@ -2,7 +2,7 @@
 ///
 /// `Global` applies operations in world space, while `Local` applies
 /// operations relative to the transform's current orientation.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Space {
     /// The world space.
     Global,

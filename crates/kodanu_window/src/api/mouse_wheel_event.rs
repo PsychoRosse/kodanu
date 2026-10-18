@@ -1,17 +1,13 @@
-use {kodanu_ecs::Event, kodanu_math::MouseScroll};
+use {kodanu_ecs::Event, kodanu_macros::Getters, kodanu_math::MouseScroll};
 
-#[derive(Event, Debug, Clone, Copy)]
+#[derive(Getters, Event, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct MouseWheelEvent {
+    #[getter(copy, must_use)]
     scroll: MouseScroll,
 }
 
-impl MouseWheelEvent {
-    pub fn delta(&self) -> MouseScroll {
-        self.scroll
-    }
-}
-
 impl From<MouseScroll> for MouseWheelEvent {
+    #[inline]
     fn from(value: MouseScroll) -> Self {
         Self { scroll: value }
     }

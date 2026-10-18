@@ -75,7 +75,7 @@ impl Input {
         }
 
         for event in wheel.iter() {
-            match event.delta() {
+            match event.scroll() {
                 MouseScroll::Lines(lines) => {
                     input.mouse_wheel_delta = MouseScrollDelta::new(
                         lines.x() * MouseScrollDelta::DEFAULT_MULTIPLE,

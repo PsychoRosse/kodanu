@@ -38,6 +38,7 @@ impl<A: WindowApplication> WinitWindowApplication<A> {
 }
 
 impl<A: WindowApplication> WinitApplicationHandler for WinitWindowApplication<A> {
+    #[inline]
     fn window_event(
         &mut self,
         event_loop: &dyn WinitActiveEventLoop,
@@ -60,6 +61,7 @@ impl<A: WindowApplication> WinitApplicationHandler for WinitWindowApplication<A>
         window.redraw();
     }
 
+    #[inline]
     fn about_to_wait(&mut self, _: &dyn WinitActiveEventLoop) {
         self.application.tick()
     }

@@ -85,7 +85,7 @@ These are useful for movement, cameras, physics, and gameplay systems.
 A transformation matrix can be obtained with:
 
 ```rust
-let matrix = transform.matrix();
+let matrix = transform.matrix_from_scale_rotation_translation();
 ```
 
 Points can be transformed from local space into world space:

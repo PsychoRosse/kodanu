@@ -1,15 +1,20 @@
-use kodanu_math::WindowSize;
+use {kodanu_macros::Getters, kodanu_math::WindowSize};
 
 use winit::{
     dpi::PhysicalSize as WinitPhysicalSize, window::WindowAttributes as WinitWindowAttributes,
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Getters, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct WindowAttributes {
+    #[getter(str)]
     title: &'static str,
+    #[getter(copy)]
     size: WindowSize,
+    #[getter(copy)]
     min_size: WindowSize,
+    #[getter(copy)]
     maximized: bool,
+    #[getter(copy)]
     decorations: bool,
 }
 

@@ -19,7 +19,6 @@ mod render_item;
 mod render_pass;
 mod render_pipeline;
 mod render_queue;
-mod shader_storage;
 
 pub(crate) use {
     asset_storage::AssetStorage, camera_layout::CameraLayout, camera_renderer::CameraRenderer,
@@ -29,5 +28,4 @@ pub(crate) use {
     material_uniform::MaterialUniform, model_layout::ModelLayout, model_uniform::ModelUniform,
     msaa_view::MsaaView, pipeline_layout_storage::PipelineLayoutStorage, render_item::RenderItem,
     render_pass::RenderPass, render_pipeline::RenderPipeline, render_queue::RenderQueue,
-    shader_storage::ShaderStorage,
 };

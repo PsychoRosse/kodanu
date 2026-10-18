@@ -13,6 +13,19 @@ use {
 ///
 /// The directional constants use the following coordinate convention:
 /// positive Y is up, positive X is right, and negative Z is forward.
+///
+/// # Examples
+///
+/// ```
+/// use kodanu_math::Vec3;
+///
+/// let position = Vec3::new(1.0, 2.0, 3.0);
+/// let offset = Vec3::new(4.0, 5.0, 6.0);
+///
+/// let result = position + offset;
+///
+/// assert_eq!(result, Vec3::new(5.0, 7.0, 9.0));
+/// ```
 #[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Vec3 {
     /// The x component of the vector.
@@ -51,6 +64,8 @@ impl Vec3 {
 }
 
 impl Vec3 {
+    /// Creates a vector with each component set to the given value.
+    #[must_use]
     pub fn splat(size: f32) -> Self {
         Self::new(size, size, size)
     }
@@ -311,7 +326,7 @@ mod test {
 
     #[test]
     fn cross_respects_right_hand_rule() {
-        assert_eq!(Vec3::RIGHT.cross(Vec3::UP), Vec3::RIGHT);
+        assert_eq!(Vec3::RIGHT.cross(Vec3::UP), Vec3::BACKWARD);
         assert_eq!(Vec3::UP.cross(Vec3::RIGHT), Vec3::FORWARD);
     }
 

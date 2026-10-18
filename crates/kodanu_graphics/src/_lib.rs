@@ -6,7 +6,7 @@ pub mod prelude {
 }
 
 pub use {
-    render::{api::*, components::*, plugins::*},
+    render::{api::*, components::*, plugins::*, resources::*},
     ui::components::*,
 };
 

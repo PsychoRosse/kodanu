@@ -13,6 +13,7 @@ pub struct WinitWindowBackend {
 }
 
 impl WindowFrontend for WinitWindowBackend {
+    #[inline]
     fn redraw(&self) {
         self.window.request_redraw();
     }

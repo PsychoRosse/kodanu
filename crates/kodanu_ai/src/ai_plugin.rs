@@ -99,7 +99,7 @@ fn ai_startup_system() {
     println!("Predictions:\n{predictions}");
     println!("Expected:\n{targets}");
 
-    let first_prediction = predictions.clone().slice([0..1]).into_scalar::<i64>() as usize;
+    let first_prediction = predictions.clone().slice(0..1).into_scalar::<i64>() as usize;
 
     match NpcAction::from_index(first_prediction) {
         Some(action) => println!("First NPC action: {action:?}"),

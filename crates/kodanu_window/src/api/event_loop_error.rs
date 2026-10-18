@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum EventLoopError {
     #[error("Failed to create window event loop")]
     EventLoopCreation,

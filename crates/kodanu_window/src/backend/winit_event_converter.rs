@@ -11,9 +11,11 @@ use winit::keyboard::{KeyCode as WinitKeyCode, PhysicalKey as WinitPhysicalKey};
 
 use kodanu_math::{MousePos, MouseScroll, MouseScrollDelta, SurfaceSize};
 
+#[derive(Clone, Copy)]
 pub struct WinitEventConverter;
 
 impl WinitEventConverter {
+    #[inline]
     pub fn from(event: WinitWindowEvent) -> Option<WindowEvent> {
         match event {
             WinitWindowEvent::CloseRequested => Some(WindowEvent::CloseRequested),
@@ -47,6 +49,7 @@ impl WinitEventConverter {
         }
     }
 
+    #[inline]
     fn key_state(state: WinitElementState) -> KeyStatus {
         match state {
             WinitElementState::Pressed => KeyStatus::Pressed,
@@ -54,6 +57,7 @@ impl WinitEventConverter {
         }
     }
 
+    #[inline]
     fn button_state(state: WinitElementState) -> ButtonStatus {
         match state {
             WinitElementState::Pressed => ButtonStatus::Pressed,
@@ -61,6 +65,7 @@ impl WinitEventConverter {
         }
     }
 
+    #[inline]
     fn key(key: WinitPhysicalKey) -> Option<Key> {
         match key {
             WinitPhysicalKey::Code(WinitKeyCode::KeyW) => Some(Key::W),
@@ -101,6 +106,7 @@ impl WinitEventConverter {
         }
     }
 
+    #[inline]
     fn button(button: WinitMouseButton) -> Option<Button> {
         match button {
             WinitMouseButton::Left => Some(Button::Left),
