@@ -1,6 +1,6 @@
 //! Derive macros for the Kodanu game engine.
 //!
-//! This crate provides [`crate::Getters`], which generates read-only accessor
+//! This crate provides [`Getters`], which generates read-only accessor
 //! methods for struct fields.
 //!
 //! # Features
