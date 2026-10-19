@@ -8,8 +8,12 @@ pub use {
 
 use rapier3d::{
     math::{Rot3 as RapierRot3, Vec3 as RapierVec3, Vector as RapierVector},
-    parry::query::Ray as RapierRay,
     pipeline::QueryFilter as RapierQueryFilter,
+};
+
+use rapier3d::parry::{
+    query::{Ray as RapierRay, ShapeCastOptions as RapierShapeCastOptions},
+    shape::Ball as RapierBall,
 };
 
 use rapier3d::prelude::{
@@ -187,6 +191,76 @@ impl PhysicsWorld {
                 ),
             ));
         }
+    }
+
+    pub fn spherecast(
+        &self,
+        origin: Vec3,
+        radius: f32,
+        direction: Vec3,
+        max_distance: f32,
+    ) -> Option<Hit> {
+        if !origin.is_finite()
+            || !direction.is_finite()
+            || !radius.is_finite()
+            || radius <= 0.0
+            || !max_distance.is_finite()
+            || max_distance <= 0.0
+        {
+            return None;
+        }
+
+        let length_squared = direction.length_squared();
+
+        if length_squared <= f32::EPSILON {
+            return None;
+        }
+
+        let inv_length = length_squared.sqrt().recip();
+
+        let direction = RapierVector::new(
+            direction.x * inv_length,
+            direction.y * inv_length,
+            direction.z * inv_length,
+        );
+
+        let shape = RapierBall::new(radius);
+
+        let shape_position = RapierPose3::from_parts(
+            RapierVector::new(origin.x, origin.y, origin.z),
+            RapierRot3::from_xyzw(0.0, 0.0, 0.0, 1.0),
+        );
+
+        let query = self.physics.broad_phase.as_query_pipeline(
+            self.physics.narrow_phase.query_dispatcher(),
+            &self.physics.bodies,
+            &self.physics.colliders,
+            RapierQueryFilter::default(),
+        );
+
+        let (_, intersection) = query.cast_shape(
+            &shape_position,
+            direction,
+            &shape,
+            RapierShapeCastOptions {
+                max_time_of_impact: max_distance,
+                ..Default::default()
+            },
+        )?;
+
+        Some(Hit::new(
+            Vec3::new(
+                intersection.witness1.x,
+                intersection.witness1.y,
+                intersection.witness1.z,
+            ),
+            Vec3::new(
+                intersection.normal1.x,
+                intersection.normal1.y,
+                intersection.normal1.z,
+            ),
+            intersection.time_of_impact,
+        ))
     }
 
     pub(crate) fn physics_system(mut world: ResMut<PhysicsWorld>) {
