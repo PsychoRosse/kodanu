@@ -5,21 +5,18 @@ use kodanu_ecs::Resource;
 pub struct CameraSettings {
     /// Mouse or input sensitivity used to control the camera.
     pub sens: f32,
-
-    /// Camera movement speed.
-    pub speed: f32,
 }
 
 impl Default for CameraSettings {
     fn default() -> Self {
-        Self::new(100.0, 15.0)
+        Self::new(200.0)
     }
 }
 
 impl CameraSettings {
-    /// Creates camera settings with the specified sensitivity and movement speed.
+    /// Creates camera settings with the specified sensitivity speed.
     #[must_use]
-    pub const fn new(sens: f32, speed: f32) -> Self {
-        Self { sens, speed }
+    pub const fn new(sens: f32) -> Self {
+        Self { sens }
     }
 }

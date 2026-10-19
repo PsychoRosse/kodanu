@@ -7,6 +7,7 @@
 #![warn(missing_docs)]
 #![warn(rustdoc::broken_intra_doc_links)]
 
+mod components;
 mod plugins;
 
 /// Commonly used types from `kodanu_plugins`.
@@ -15,7 +16,7 @@ mod plugins;
 /// use kodanu_plugins::prelude::*;
 /// ```
 pub mod prelude {
-    pub use crate::{DemoScenePlugin, DevPlugins, FreeCameraPlugin};
+    pub use crate::{DemoScenePlugin, DevPlugins};
 }
 
-pub use plugins::*;
+pub use {components::*, plugins::*};

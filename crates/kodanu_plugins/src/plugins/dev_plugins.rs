@@ -1,4 +1,4 @@
-use crate::{DemoScenePlugin, FreeCameraPlugin};
+use crate::{DemoScenePlugin, PlayerPlugin};
 
 pub use {
     kodanu_ecs::{Plugin, Registry},
@@ -25,6 +25,6 @@ impl Plugin for DevPlugins {
             .with_plugin(RenderPlugin)
             .with_plugin(PhysicsPlugin)
             .with_plugin(DemoScenePlugin)
-            .with_plugin(FreeCameraPlugin);
+            .with_plugin(PlayerPlugin);
     }
 }

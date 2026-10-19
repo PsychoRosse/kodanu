@@ -7,9 +7,8 @@
 #![warn(missing_docs)]
 #![warn(rustdoc::broken_intra_doc_links)]
 
-mod space;
-mod transform;
-mod transform_error;
+mod api;
+mod components;
 
 /// Commonly used types from `kodanu_transform`.
 ///
@@ -21,4 +20,4 @@ pub mod prelude {
     pub use crate::{Space, Transform, TransformError};
 }
 
-pub use {space::Space, transform::Transform, transform_error::TransformError};
+pub use {api::*, components::*};

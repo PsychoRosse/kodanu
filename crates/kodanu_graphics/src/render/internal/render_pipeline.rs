@@ -44,7 +44,7 @@ impl RenderPipeline {
                 buffers: &[Some(Vertex::layout())],
             },
             fragment: Some(WgpuFragmentState {
-                module: &ShaderStorage::fragment(device),
+                module: &ShaderStorage::normal(device),
                 entry_point: Some("main"),
                 compilation_options: WgpuPipelineCompilationOptions::default(),
                 targets: &[Some(WgpuColorTargetState {
