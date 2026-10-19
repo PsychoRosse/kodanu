@@ -6,6 +6,10 @@ pub struct Velocity {
 }
 
 impl Velocity {
+    pub const BASE_GRAVITY: f32 = 14.81;
+}
+
+impl Velocity {
     pub fn new(linear: Vec3) -> Self {
         Self { linear }
     }

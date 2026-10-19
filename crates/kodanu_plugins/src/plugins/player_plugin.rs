@@ -1,4 +1,4 @@
-use crate::{ActivePlayer, PlayerSettings, Velocity};
+use crate::{ActivePlayer, PlayerSettings, PlayerState, Velocity};
 
 use {
     kodanu_camera::CameraState,
@@ -14,7 +14,8 @@ pub use {
     kodanu_math::Vec3,
     kodanu_physics::PhysicsWorld,
     kodanu_time::Time,
-    kodanu_transform::{Space, Transform},
+    kodanu_transform::Transform,
+    kodanu_window::Key,
 };
 
 pub struct PlayerPlugin;
@@ -23,6 +24,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, registry: &mut impl Registry) {
         registry
             .with_res(CameraState::default())
+            .with_res(PlayerState::default())
             .with_res(CameraSettings::default())
             .with_res(PlayerSettings::default());
 
@@ -37,10 +39,13 @@ impl Plugin for PlayerPlugin {
 fn player_move_system(
     time: Res<Time>,
     input: Res<Input>,
+    state: Res<PlayerState>,
     settings: Res<PlayerSettings>,
-    query: Query<Write<Transform>, With<ActivePlayer>>,
+    query: Query<(Write<Transform>, Write<Velocity>), With<ActivePlayer>>,
 ) {
-    for transform in query {
+    for (transform, velocity) in query {
+        let delta = time.delta();
+
         let forward = Vec3::new(transform.forward().x, 0.0, transform.forward().z);
         let left = Vec3::new(transform.left().x, 0.0, transform.left().z);
 
@@ -48,14 +53,22 @@ fn player_move_system(
             .try_normalize()
             .unwrap_or(Vec3::ZERO);
 
-        transform.translate(direction * settings.speed * time.delta(), Space::Global);
+        velocity.linear.x = direction.x * settings.speed;
+        velocity.linear.z = direction.z * settings.speed;
+
+        if input.key_just_pressed(Key::Space) && state.is_ground() {
+            velocity.linear.y = (2.0 * Velocity::BASE_GRAVITY * settings.jump_height).sqrt();
+        }
+
+        transform.position += velocity.linear * delta;
     }
 }
 
 #[allow(clippy::type_complexity)]
 fn player_ground_check_system(
-    time: Res<Time>,
+    mut state: ResMut<PlayerState>,
     physics: Res<PhysicsWorld>,
+    time: Res<Time>,
     query: Query<
         (
             Write<Transform>,
@@ -67,23 +80,24 @@ fn player_ground_check_system(
     >,
 ) {
     for (transform, velocity, rigid_body, collider) in query {
-        if physics
+        let grounded = physics
             .spherecast(
                 transform.position,
                 1.0,
-                Vec3::DOWN,
                 1.08,
+                Vec3::DOWN,
                 Some(&[collider]),
                 Some(&[rigid_body]),
             )
-            .is_none()
-        {
-            let delta = time.delta();
+            .is_some()
+            && velocity.linear.y <= 0.0;
 
-            velocity.linear.y -= 9.81 * delta;
-            transform.position.y += velocity.linear.y * delta;
+        if grounded {
+            state.set(true);
+            velocity.linear.y = 0.0;
         } else {
-            velocity.linear.y = -1.0;
+            state.set(false);
+            velocity.linear.y -= Velocity::BASE_GRAVITY * time.delta();
         }
     }
 }

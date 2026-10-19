@@ -7,8 +7,8 @@ pub use {
 };
 
 use rapier3d::prelude::{
-    Collider as RapierCollider, ColliderHandle as RapierColliderHandle,
-    PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3, RigidBodyType as RapierRigidBodyType,
+    Collider as RapierCollider, PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3,
+    RigidBodyType as RapierRigidBodyType,
 };
 
 use rapier3d::{
@@ -100,8 +100,8 @@ impl PhysicsWorld {
         &self,
         origin: Vec3,
         radius: f32,
-        direction: Vec3,
         max_distance: f32,
+        direction: Vec3,
         exclude_colliders: Option<&[&Collider]>,
         exclude_rigid_bodies: Option<&[&RigidBody]>,
     ) -> Option<Hit> {
