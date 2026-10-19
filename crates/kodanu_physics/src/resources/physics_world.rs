@@ -13,8 +13,7 @@ use rapier3d::{
 };
 
 use rapier3d::prelude::{
-    PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3, Real as RapierReal,
-    RigidBodyType as RapierRigidBodyType,
+    PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3, RigidBodyType as RapierRigidBodyType,
 };
 
 #[derive(Resource, Default)]
@@ -57,17 +56,12 @@ impl PhysicsWorld {
         }
 
         let inv_length = length_squared.sqrt().recip();
-
-        let origin = RapierVector::new(
-            origin.x as RapierReal,
-            origin.y as RapierReal,
-            origin.z as RapierReal,
-        );
+        let origin = RapierVector::new(origin.x, origin.y, origin.z);
 
         let direction = RapierVector::new(
-            direction.x as RapierReal * inv_length,
-            direction.y as RapierReal * inv_length,
-            direction.z as RapierReal * inv_length,
+            direction.x * inv_length,
+            direction.y * inv_length,
+            direction.z * inv_length,
         );
 
         let ray = RapierRay::new(origin, direction);
