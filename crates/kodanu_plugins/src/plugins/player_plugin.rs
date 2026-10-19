@@ -29,7 +29,7 @@ impl Plugin for PlayerPlugin {
         registry
             .with_system(Stage::Startup, player_startup_system)
             .with_system(Stage::LateUpdate, first_person_camera_system)
-            .with_system(Stage::Update, plauer_ground_check_system)
+            .with_system(Stage::Update, player_ground_check_system)
             .with_system(Stage::Update, player_move_system);
     }
 }
@@ -52,7 +52,7 @@ fn player_move_system(
     }
 }
 
-fn plauer_ground_check_system(
+fn player_ground_check_system(
     time: Res<Time>,
     physics: Res<PhysicsWorld>,
     query: Query<(Write<Transform>, Write<Velocity>), With<ActivePlayer>>,
