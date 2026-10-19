@@ -9,7 +9,7 @@ use {
 
 pub use {
     kodanu_camera::{ActiveCamera, Camera, CameraSettings},
-    kodanu_ecs::{Commands, Plugin, Query, Registry, Res, Stage, With, Write},
+    kodanu_ecs::{Commands, Plugin, Query, Read, Registry, Res, Stage, With, Write},
     kodanu_input::{Axis, Input},
     kodanu_math::Vec3,
     kodanu_physics::PhysicsWorld,
@@ -52,14 +52,30 @@ fn player_move_system(
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn player_ground_check_system(
     time: Res<Time>,
     physics: Res<PhysicsWorld>,
-    query: Query<(Write<Transform>, Write<Velocity>), With<ActivePlayer>>,
+    query: Query<
+        (
+            Write<Transform>,
+            Write<Velocity>,
+            Read<RigidBody>,
+            Read<Collider>,
+        ),
+        With<ActivePlayer>,
+    >,
 ) {
-    for (transform, velocity) in query {
+    for (transform, velocity, rigid_body, collider) in query {
         if physics
-            .raycast(transform.position - Vec3::UP * 2.0, Vec3::DOWN, 0.1)
+            .spherecast(
+                transform.position,
+                1.0,
+                Vec3::DOWN,
+                1.08,
+                Some(&[collider]),
+                Some(&[rigid_body]),
+            )
             .is_none()
         {
             let delta = time.delta();
@@ -67,7 +83,7 @@ fn player_ground_check_system(
             velocity.linear.y -= 9.81 * delta;
             transform.position.y += velocity.linear.y * delta;
         } else {
-            velocity.linear.y = -4.905;
+            velocity.linear.y = -1.0;
         }
     }
 }
