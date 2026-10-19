@@ -11,17 +11,18 @@ impl<C> Default for Added<C> {
 }
 
 impl<C: Component> QueryFilter for Added<C> {
-    type Storage<'w> = (Option<&'w SparseSet<C>>, Tick);
+    type Storage<'w> = Option<&'w SparseSet<C>>;
 
     fn fetch<'w>(cell: WorldCell<'w>) -> Self::Storage<'w> {
-        (cell.storage::<C>(), cell.change_tick())
+        cell.storage::<C>()
     }
 
-    fn matches(storage: &Self::Storage<'_>, entity: u32) -> bool {
-        let (Some(set), tick) = storage else {
+    fn matches(storage: &Self::Storage<'_>, entity: u32, last_run: Tick, this_run: Tick) -> bool {
+        let Some(set) = storage else {
             return false;
         };
 
-        set.added_tick(entity) == Some(*tick)
+        set.added_tick(entity)
+            .is_some_and(|tick| tick.is_newer_than(last_run, this_run))
     }
 }

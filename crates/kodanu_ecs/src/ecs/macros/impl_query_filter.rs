@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{QueryFilter, WorldCell};
+use crate::{QueryFilter, Tick, WorldCell};
 
 macro_rules! impl_query_filter {
     ($($A:ident : $idx:tt),+$(,)?) => {
@@ -14,8 +14,18 @@ macro_rules! impl_query_filter {
                 ($($A::fetch(cell),)+)
             }
 
-            fn matches(storage: &Self::Storage<'_>, entity: u32) -> bool {
-                true $(&& $A::matches(&storage.$idx, entity))+
+            fn matches(
+                storage: &Self::Storage<'_>,
+                entity: u32,
+                last_run: Tick,
+                this_run: Tick,
+            ) -> bool {
+                true $(&& $A::matches(
+                    &storage.$idx,
+                    entity,
+                    last_run,
+                    this_run,
+                ))+
             }
         }
     };

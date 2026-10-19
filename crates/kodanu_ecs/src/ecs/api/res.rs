@@ -1,4 +1,4 @@
-use crate::{Resource, SystemParam, WorldCell};
+use crate::{Resource, SystemParam, Tick, WorldCell};
 
 use std::ops::Deref;
 
@@ -23,7 +23,7 @@ impl<'w, R> Deref for Res<'w, R> {
 impl<R: Resource> SystemParam for Res<'_, R> {
     type Item<'w> = Res<'w, R>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'w>(cell: WorldCell<'w>, _: Tick, _: Tick) -> Self::Item<'w> {
         Res::new(cell.expect_res::<R>())
     }
 }
@@ -31,7 +31,7 @@ impl<R: Resource> SystemParam for Res<'_, R> {
 impl<R: Resource> SystemParam for Option<Res<'_, R>> {
     type Item<'w> = Option<Res<'w, R>>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'w>(cell: WorldCell<'w>, _: Tick, _: Tick) -> Self::Item<'w> {
         cell.get_res::<R>().map(Res::new)
     }
 }

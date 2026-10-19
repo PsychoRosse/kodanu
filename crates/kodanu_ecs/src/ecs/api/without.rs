@@ -1,6 +1,6 @@
-use std::marker::PhantomData;
+use crate::{Component, QueryFilter, SparseSet, Tick, WorldCell};
 
-use crate::{Component, QueryFilter, SparseSet, WorldCell};
+use std::marker::PhantomData;
 
 pub struct Without<C>(PhantomData<fn() -> C>);
 
@@ -11,7 +11,7 @@ impl<C: Component> QueryFilter for Without<C> {
         cell.storage::<C>()
     }
 
-    fn matches(storage: &Self::Storage<'_>, entity: u32) -> bool {
+    fn matches(storage: &Self::Storage<'_>, entity: u32, _: Tick, _: Tick) -> bool {
         storage.is_none_or(|storage| !storage.contains(entity))
     }
 }

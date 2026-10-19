@@ -68,7 +68,10 @@ impl CameraRenderer {
                 camera.set_aspect_from_surface(*event);
             }
 
-            render.update(instance.queue(), camera.view_projection_matrix(transform.unchecked_inverse_matrix()));
+            render.update(
+                instance.queue(),
+                camera.view_projection_matrix(transform.unchecked_inverse_matrix()),
+            );
         }
     }
 }

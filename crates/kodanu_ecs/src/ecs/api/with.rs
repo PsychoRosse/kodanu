@@ -1,4 +1,4 @@
-use crate::{Component, QueryFilter, SparseSet, WorldCell};
+use crate::{Component, QueryFilter, SparseSet, Tick, WorldCell};
 
 use std::marker::PhantomData;
 
@@ -11,7 +11,7 @@ impl<C: Component> QueryFilter for With<C> {
         cell.storage::<C>()
     }
 
-    fn matches(storage: &Self::Storage<'_>, entity: u32) -> bool {
+    fn matches(storage: &Self::Storage<'_>, entity: u32, _: Tick, _: Tick) -> bool {
         storage.is_some_and(|storage| storage.contains(entity))
     }
 }

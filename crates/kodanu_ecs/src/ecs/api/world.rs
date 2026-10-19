@@ -3,13 +3,24 @@ use crate::{
     EventRegistry, Resource, ResourceRegistry, SparseSet, Tick, WorldCell, WorldError,
 };
 
-#[derive(Default)]
 pub struct World {
     allocator: EntityAllocator,
     storages: ComponentRegistry,
     resources: ResourceRegistry,
     events: EventRegistry,
     tick: Tick,
+}
+
+impl Default for World {
+    fn default() -> Self {
+        Self {
+            allocator: EntityAllocator::default(),
+            storages: ComponentRegistry::default(),
+            resources: ResourceRegistry::default(),
+            events: EventRegistry::default(),
+            tick: Tick::INITIAL,
+        }
+    }
 }
 
 impl World {
@@ -19,7 +30,7 @@ impl World {
             storages: ComponentRegistry::with_capacity(capacity),
             resources: ResourceRegistry::with_capacity(capacity),
             events: EventRegistry::with_capacity(capacity),
-            tick: Tick::ZERO,
+            tick: Tick::INITIAL,
         }
     }
 }

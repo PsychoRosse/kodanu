@@ -1,4 +1,4 @@
-use crate::{Resource, SystemParam, WorldCell};
+use crate::{Resource, SystemParam, Tick, WorldCell};
 
 use std::ops::{Deref, DerefMut};
 
@@ -27,7 +27,7 @@ impl<'w, T> DerefMut for ResMut<'w, T> {
 impl<R: Resource> SystemParam for ResMut<'_, R> {
     type Item<'w> = ResMut<'w, R>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'w>(cell: WorldCell<'w>, _: Tick, _: Tick) -> Self::Item<'w> {
         ResMut::new(cell.expect_res_mut::<R>())
     }
 }
@@ -35,7 +35,7 @@ impl<R: Resource> SystemParam for ResMut<'_, R> {
 impl<R: Resource> SystemParam for Option<ResMut<'_, R>> {
     type Item<'w> = Option<ResMut<'w, R>>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'w>(cell: WorldCell<'w>, _: Tick, _: Tick) -> Self::Item<'w> {
         cell.get_res_mut::<R>().map(ResMut::new)
     }
 }

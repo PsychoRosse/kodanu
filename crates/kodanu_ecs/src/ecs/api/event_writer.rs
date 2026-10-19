@@ -1,4 +1,4 @@
-use crate::{Event, EventBuffer, SystemParam, WorldCell};
+use crate::{Event, EventBuffer, SystemParam, Tick, WorldCell};
 
 pub struct EventWriter<'w, E: Event> {
     value: &'w mut EventBuffer<E>,
@@ -23,7 +23,7 @@ impl<'w, E: Event> EventWriter<'w, E> {
 impl<E: Event> SystemParam for EventWriter<'_, E> {
     type Item<'w> = EventWriter<'w, E>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'w>(cell: WorldCell<'w>, _: Tick, _: Tick) -> Self::Item<'w> {
         EventWriter::new(cell.expect_mut_event::<E>())
     }
 }

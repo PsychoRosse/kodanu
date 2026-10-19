@@ -1,4 +1,4 @@
-use crate::{QueryFilter, QueryStorage};
+use crate::{QueryFilter, QueryStorage, Tick};
 
 use std::{iter::FusedIterator, marker::PhantomData};
 
@@ -9,6 +9,8 @@ where
 {
     storage: S,
     filter: F::Storage<'w>,
+    last_run: Tick,
+    this_run: Tick,
     dense: usize,
     marker: PhantomData<&'w ()>,
 }
@@ -18,10 +20,12 @@ where
     S: QueryStorage<'w>,
     F: QueryFilter,
 {
-    pub fn new(storage: S, filter: F::Storage<'w>) -> Self {
+    pub fn new(storage: S, filter: F::Storage<'w>, last_run: Tick, this_run: Tick) -> Self {
         Self {
             storage,
             filter,
+            last_run,
+            this_run,
             dense: 0,
             marker: PhantomData,
         }
@@ -42,7 +46,7 @@ where
 
             let entity = self.storage.entity(dense);
 
-            if !F::matches(&self.filter, entity) {
+            if !F::matches(&self.filter, entity, self.last_run, self.this_run) {
                 continue;
             }
 

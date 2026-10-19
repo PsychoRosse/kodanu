@@ -3,6 +3,7 @@ pub struct Tick(u32);
 
 impl Tick {
     pub const ZERO: Self = Self::new(0);
+    pub const INITIAL: Self = Self::new(1);
 }
 
 impl Tick {

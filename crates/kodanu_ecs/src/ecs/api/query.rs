@@ -1,10 +1,12 @@
-use crate::{QueryAccess, QueryFilter, QueryIter, QueryStorage, SystemParam, WorldCell};
+use crate::{QueryAccess, QueryFilter, QueryIter, QueryStorage, SystemParam, Tick, WorldCell};
 
 use std::marker::PhantomData;
 
 pub struct Query<'w, A: QueryAccess, F: QueryFilter = ()> {
     storage: A::Storage<'w>,
     filter: F::Storage<'w>,
+    last_run: Tick,
+    this_run: Tick,
     marker: PhantomData<&'w ()>,
 }
 
@@ -13,10 +15,17 @@ where
     A: QueryAccess,
     F: QueryFilter,
 {
-    pub fn new(storage: A::Storage<'w>, filter: F::Storage<'w>) -> Self {
+    pub fn new(
+        storage: A::Storage<'w>,
+        filter: F::Storage<'w>,
+        last_run: Tick,
+        this_run: Tick,
+    ) -> Self {
         Self {
             storage,
             filter,
+            last_run,
+            this_run,
             marker: PhantomData,
         }
     }
@@ -33,7 +42,7 @@ where
         for dense in 0..self.storage.len() {
             let entity = self.storage.entity(dense);
 
-            if F::matches(&self.filter, entity) {
+            if F::matches(&self.filter, entity, self.last_run, self.this_run) {
                 count += 1;
             }
         }
@@ -44,7 +53,8 @@ where
     pub fn is_empty(&self) -> bool {
         (0..self.storage.len()).all(|dense| {
             let entity = self.storage.entity(dense);
-            !F::matches(&self.filter, entity)
+
+            !F::matches(&self.filter, entity, self.last_run, self.this_run)
         })
     }
 }
@@ -58,7 +68,7 @@ where
     type IntoIter = QueryIter<'w, A::Storage<'w>, F>;
 
     fn into_iter(self) -> Self::IntoIter {
-        QueryIter::new(self.storage, self.filter)
+        QueryIter::new(self.storage, self.filter, self.last_run, self.this_run)
     }
 }
 
@@ -69,7 +79,7 @@ where
 {
     type Item<'w> = Query<'w, A, F>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
-        Query::new(A::fetch(cell), F::fetch(cell))
+    fn fetch<'w>(cell: WorldCell<'w>, last_run: Tick, this_run: Tick) -> Self::Item<'w> {
+        Query::new(A::fetch(cell), F::fetch(cell), last_run, this_run)
     }
 }

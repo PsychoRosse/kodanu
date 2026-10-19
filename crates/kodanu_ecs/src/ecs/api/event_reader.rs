@@ -1,4 +1,4 @@
-use crate::{Event, EventBuffer, SystemParam, WorldCell};
+use crate::{Event, EventBuffer, SystemParam, Tick, WorldCell};
 
 pub struct EventReader<'w, E: Event> {
     value: &'w EventBuffer<E>,
@@ -23,7 +23,7 @@ impl<'w, E: Event> EventReader<'w, E> {
 impl<E: Event> SystemParam for EventReader<'_, E> {
     type Item<'w> = EventReader<'w, E>;
 
-    fn fetch<'w>(cell: WorldCell<'w>) -> Self::Item<'w> {
+    fn fetch<'w>(cell: WorldCell<'w>, _: Tick, _: Tick) -> Self::Item<'w> {
         EventReader::new(cell.expect_event::<E>())
     }
 }

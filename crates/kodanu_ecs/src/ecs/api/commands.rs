@@ -1,4 +1,4 @@
-use crate::{Bundle, Entity, Resource, SystemParam, WorldCell};
+use crate::{Bundle, Entity, Resource, SystemParam, Tick, WorldCell};
 
 #[derive(Clone, Copy)]
 pub struct Commands<'c> {
@@ -28,7 +28,7 @@ impl<'c> Commands<'c> {
 impl SystemParam for Commands<'_> {
     type Item<'c> = Commands<'c>;
 
-    fn fetch<'c>(world: WorldCell<'c>) -> Self::Item<'c> {
+    fn fetch<'c>(world: WorldCell<'c>, _: Tick, _: Tick) -> Self::Item<'c> {
         Commands::new(world)
     }
 }
