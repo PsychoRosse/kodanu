@@ -1,9 +1,11 @@
-use kodanu_camera::CameraState;
-use kodanu_ecs::ResMut;
-use kodanu_math::Quat;
-use kodanu_physics::{Collider, RigidBody};
-
 use crate::{ActivePlayer, PlayerSettings, Velocity};
+
+use {
+    kodanu_camera::CameraState,
+    kodanu_ecs::ResMut,
+    kodanu_math::Quat,
+    kodanu_physics::{Collider, RigidBody},
+};
 
 pub use {
     kodanu_camera::{ActiveCamera, Camera, CameraSettings},
