@@ -1,5 +1,3 @@
-use crate::{DemoScenePlugin, PlayerPlugin};
-
 pub use {
     kodanu_ecs::{Plugin, Registry},
     kodanu_graphics::RenderPlugin,
@@ -18,8 +16,6 @@ impl Plugin for DevPlugins {
             .with_plugin(InputPlugin)
             .with_plugin(TimePlugin)
             .with_plugin(RenderPlugin)
-            .with_plugin(PhysicsPlugin)
-            .with_plugin(DemoScenePlugin)
-            .with_plugin(PlayerPlugin);
+            .with_plugin(PhysicsPlugin);
     }
 }

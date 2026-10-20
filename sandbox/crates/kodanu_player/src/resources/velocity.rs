@@ -6,7 +6,7 @@ pub struct Velocity {
 }
 
 impl Velocity {
-    pub const BASE_GRAVITY: f32 = 14.81;
+    pub const GRAVITY: f32 = 14.81;
 }
 
 impl Velocity {

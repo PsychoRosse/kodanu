@@ -186,6 +186,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
+name = "app"
+version = "0.1.0"
+dependencies = [
+ "kodanu",
+ "kodanu_player",
+]
+
+[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3810,6 +3818,21 @@ dependencies = [
  "kodanu_math",
  "kodanu_transform",
  "rapier3d",
+]
+
+[[package]]
+name = "kodanu_player"
+version = "0.1.0"
+dependencies = [
+ "kodanu_camera",
+ "kodanu_ecs",
+ "kodanu_graphics",
+ "kodanu_input",
+ "kodanu_math",
+ "kodanu_physics",
+ "kodanu_time",
+ "kodanu_transform",
+ "kodanu_window",
 ]
 
 [[package]]

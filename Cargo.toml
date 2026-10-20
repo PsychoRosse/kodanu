@@ -15,6 +15,9 @@ members = [
     "crates/kodanu_time",
     "crates/kodanu_transform",
     "crates/kodanu_window",
+
+    "sandbox/app",
+    "sandbox/crates/kodanu_player",
 ]
 
 resolver = "3"
@@ -68,3 +71,5 @@ kodanu_plugins = { package = "kodanu_plugins", path = "crates/kodanu_plugins" }
 kodanu_time = { package = "kodanu_time", path = "crates/kodanu_time" }
 kodanu_transform = { package = "kodanu_transform", path = "crates/kodanu_transform" }
 kodanu_window = { package = "kodanu_window", path = "crates/kodanu_window" }
+
+kodanu_player = { package = "kodanu_player", path = "sandbox/crates/kodanu_player" }

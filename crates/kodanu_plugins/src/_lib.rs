@@ -1,8 +1,7 @@
-mod components;
-mod plugins;
+mod dev_plugins;
 
 pub mod prelude {
-    pub use crate::{DemoScenePlugin, DevPlugins};
+    pub use crate::DevPlugins;
 }
 
-pub use {components::*, plugins::*};
+pub use dev_plugins::DevPlugins;
