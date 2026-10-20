@@ -1,20 +1,14 @@
 use crate::{ActivePlayer, PlayerSettings, PlayerState, Velocity};
 
-use {
-    kodanu_camera::CameraState,
-    kodanu_math::Quat,
-    kodanu_physics::{Collider, RigidBody},
-};
-
-pub use {
-    kodanu_camera::{ActiveCamera, Camera, CameraSettings},
-    kodanu_ecs::{Commands, Plugin, Query, Read, Registry, Res, Stage, With, Write},
-    kodanu_input::{Axis, Input},
-    kodanu_math::Vec3,
-    kodanu_physics::PhysicsWorld,
-    kodanu_time::Time,
-    kodanu_transform::Transform,
-    kodanu_window::Key,
+use kodanu::{
+    camera::{ActiveCamera, Camera, CameraSettings, CameraState},
+    ecs::{Commands, Plugin, Query, Read, Registry, Res, Stage, With, Write},
+    input::{Axis, Input},
+    math::{Quat, Vec3},
+    physics::{Collider, PhysicsWorld, RigidBody},
+    time::Time,
+    transform::Transform,
+    window::Key,
 };
 
 pub struct PlayerPlugin;

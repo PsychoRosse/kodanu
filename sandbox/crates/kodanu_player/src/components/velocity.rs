@@ -1,4 +1,4 @@
-use {kodanu_ecs::Component, kodanu_math::Vec3};
+use kodanu::{ecs::Component, math::Vec3};
 
 #[derive(Component, Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Velocity {

@@ -1,4 +1,4 @@
-use kodanu_ecs::Resource;
+use kodanu::ecs::Resource;
 
 #[derive(Resource, Debug, Clone, Copy)]
 pub struct PlayerSettings {

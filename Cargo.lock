@@ -3824,15 +3824,7 @@ dependencies = [
 name = "kodanu_player"
 version = "0.1.0"
 dependencies = [
- "kodanu_camera",
- "kodanu_ecs",
- "kodanu_graphics",
- "kodanu_input",
- "kodanu_math",
- "kodanu_physics",
- "kodanu_time",
- "kodanu_transform",
- "kodanu_window",
+ "kodanu",
 ]
 
 [[package]]
@@ -4100,6 +4092,7 @@ dependencies = [
 name = "macros"
 version = "0.1.0"
 dependencies = [
+ "proc-macro-crate",
  "proc-macro2",
  "quote",
  "syn 2.0.117",

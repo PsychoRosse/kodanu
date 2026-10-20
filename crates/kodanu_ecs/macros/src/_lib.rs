@@ -1,5 +1,6 @@
 mod component;
 mod event;
+mod path;
 mod resource;
 
 use {

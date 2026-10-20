@@ -1,9 +1,9 @@
-pub use {
-    kodanu_ecs::{Commands, Plugin, Registry, Stage},
-    kodanu_graphics::{Color, DirectLight, MeshRenderer},
-    kodanu_math::{Quat, Vec3},
-    kodanu_physics::{Collider, RigidBody},
-    kodanu_transform::Transform,
+use kodanu::{
+    ecs::{Commands, Plugin, Registry, Stage},
+    graphics::{Color, DirectLight, MeshRenderer},
+    math::{Quat, Vec3},
+    physics::{Collider, RigidBody},
+    transform::Transform,
 };
 
 pub struct DemoScenePlugin;

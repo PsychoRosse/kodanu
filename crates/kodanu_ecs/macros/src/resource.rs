@@ -1,4 +1,5 @@
 use {
+    crate::path::kodanu_ecs,
     proc_macro2::TokenStream,
     quote::quote,
     syn::{DeriveInput, Result},
@@ -6,8 +7,9 @@ use {
 
 pub fn derive_resource(input: DeriveInput) -> Result<TokenStream> {
     let name = input.ident;
+    let path = kodanu_ecs()?;
 
     Ok(quote! {
-        impl ::kodanu_ecs::Resource for #name {}
+        impl #path::Resource for #name {}
     })
 }
