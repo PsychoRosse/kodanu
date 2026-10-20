@@ -10,7 +10,8 @@ impl Velocity {
 }
 
 impl Velocity {
-    pub fn new(linear: Vec3) -> Self {
+    #[must_use]
+    pub const fn new(linear: Vec3) -> Self {
         Self { linear }
     }
 }

@@ -170,6 +170,12 @@ impl Vec3 {
     pub const fn to_array(self) -> [f32; 3] {
         [self.x, self.y, self.z]
     }
+
+    #[inline]
+    #[must_use]
+    pub fn lerp(self, end: Self, t: f32) -> Self {
+        self + (end - self) * t.clamp(0.0, 1.0)
+    }
 }
 
 impl Add for Vec3 {

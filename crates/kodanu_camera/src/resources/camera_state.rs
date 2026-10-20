@@ -1,6 +1,6 @@
-use kodanu_ecs::Resource;
+use kodanu_ecs::Component;
 
-#[derive(Resource, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct CameraState {
     pub pitch: f32,
     pub yaw: f32,
