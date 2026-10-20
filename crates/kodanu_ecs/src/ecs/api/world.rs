@@ -95,6 +95,10 @@ impl World {
         self.tick.increment();
     }
 
+    pub(crate) fn allocator(&self) -> &EntityAllocator {
+        &self.allocator
+    }
+
     pub(crate) fn storage<C: Component>(&self) -> Option<&SparseSet<C>> {
         self.storages.get_storage::<C>()
     }

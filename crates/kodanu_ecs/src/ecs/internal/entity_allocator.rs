@@ -53,4 +53,19 @@ impl EntityAllocator {
 
         *generation == entity.generation()
     }
+
+    pub fn alive_entities(&self) -> Vec<Entity> {
+        let mut alive = vec![true; self.generation.len()];
+
+        for &index in &self.free {
+            alive[index as usize] = false;
+        }
+
+        self.generation
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| alive[*index])
+            .map(|(index, &generation)| Entity::new(index as u32, generation))
+            .collect()
+    }
 }

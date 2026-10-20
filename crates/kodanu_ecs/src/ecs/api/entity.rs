@@ -1,3 +1,5 @@
+use crate::{EntityStorage, QueryAccess, WorldCell};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Entity {
     index: u32,
@@ -21,5 +23,13 @@ impl Entity {
 
     pub fn as_usize(self) -> usize {
         self.index as usize
+    }
+}
+
+impl QueryAccess for Entity {
+    type Storage<'w> = EntityStorage;
+
+    fn fetch<'w>(world: WorldCell<'w>) -> Self::Storage<'w> {
+        EntityStorage::new(world.allocator())
     }
 }

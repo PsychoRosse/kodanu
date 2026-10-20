@@ -42,7 +42,9 @@ where
         for dense in 0..self.storage.len() {
             let entity = self.storage.entity(dense);
 
-            if F::matches(&self.filter, entity, self.last_run, self.this_run) {
+            if self.storage.contains(entity)
+                && F::matches(&self.filter, entity, self.last_run, self.this_run)
+            {
                 count += 1;
             }
         }
@@ -54,7 +56,8 @@ where
         (0..self.storage.len()).all(|dense| {
             let entity = self.storage.entity(dense);
 
-            !F::matches(&self.filter, entity, self.last_run, self.this_run)
+            !self.storage.contains(entity)
+                || !F::matches(&self.filter, entity, self.last_run, self.this_run)
         })
     }
 }

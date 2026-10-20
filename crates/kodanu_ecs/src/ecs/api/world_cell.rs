@@ -1,4 +1,7 @@
-use crate::{Bundle, Component, Entity, Event, EventBuffer, Resource, SparseSet, Tick, World};
+use crate::{
+    Bundle, Component, Entity, EntityAllocator, Event, EventBuffer, Resource, SparseSet, Tick,
+    World,
+};
 
 use std::{marker::PhantomData, ptr::NonNull};
 
@@ -43,6 +46,10 @@ impl<'w> WorldCell<'w> {
         unsafe {
             (*self.world.as_ptr()).advance_change_tick();
         }
+    }
+
+    pub(crate) fn allocator(self) -> &'w EntityAllocator {
+        unsafe { (*self.world.as_ptr()).allocator() }
     }
 
     pub(crate) fn storage<C: Component>(self) -> Option<&'w SparseSet<C>> {
