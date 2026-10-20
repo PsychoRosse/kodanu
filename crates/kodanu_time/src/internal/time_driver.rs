@@ -3,14 +3,6 @@ use {
     std::time::{Duration, Instant},
 };
 
-/// Measures real time for the engine's [`crate::Time`] resource.
-///
-/// `TimeDriver` stores monotonic clock timestamps and is intentionally
-/// kept separate from the serializable [`crate::Time`] resource.
-///
-/// The driver is initialized when it is created. Each update returns
-/// the duration since the previous update and the total duration since
-/// initialization.
 #[derive(Resource, Debug)]
 pub(crate) struct TimeDriver {
     startup: Instant,
@@ -29,13 +21,6 @@ impl Default for TimeDriver {
 }
 
 impl TimeDriver {
-    /// Measures the time since the previous update and since initialization.
-    ///
-    /// If either timestamp comparison cannot produce a duration,
-    /// the corresponding value defaults to [`Duration::ZERO`].
-    ///
-    /// The returned frame duration is not clamped. Clamping is handled
-    /// by [`crate::Time`].
     pub(crate) fn update(&mut self) -> (f32, f32) {
         let now = Instant::now();
 

@@ -5,37 +5,11 @@ use {
     std::ops::{Div, DivAssign, Mul, MulAssign, Neg},
 };
 
-/// A quaternion representing a 3D rotation.
-///
-/// The quaternion is stored in `(x, y, z, w)` order, where `(x, y, z)`
-/// is the vector part and `w` is the scalar part.
-///
-/// Rotation constructors that accept angles use degrees.
-/// Quaternion operations generally assume a valid, non-zero quaternion
-/// when normalization or rotation is required.
-///
-/// # Examples
-///
-/// ```
-/// use kodanu_math::{Quat, Vec3};
-///
-/// let rotation = Quat::from_rotation_y(90.0);
-/// let direction = rotation * Vec3::FORWARD;
-///
-/// // FORWARD is (0, 0, -1); a +90 degree rotation around Y maps it to (-1, 0, 0).
-/// assert!((direction.x + 1.0).abs() < 1e-5);
-/// assert!(direction.y.abs() < 1e-5);
-/// assert!(direction.z.abs() < 1e-5);
-/// ```
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Quat {
-    /// The x component of the quaternion's vector part.
     pub x: f32,
-    /// The y component of the quaternion's vector part.
     pub y: f32,
-    /// The z component of the quaternion's vector part.
     pub z: f32,
-    /// The scalar component of the quaternion.
     pub w: f32,
 }
 
@@ -46,14 +20,11 @@ impl Default for Quat {
 }
 
 impl Quat {
-    /// The identity rotation `(0, 0, 0, 1)`.
     pub const IDENTITY: Self = Self::new(0.0, 0.0, 0.0, 1.0);
-    /// The zero rotation `(0, 0, 0, 0)`.
     pub const ZERO: Self = Self::new(0.0, 0.0, 0.0, 0.0);
 }
 
 impl Quat {
-    /// Creates a quaternion from its `(x, y, z, w)` components.
     #[must_use]
     pub const fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
         Self { x, y, z, w }
@@ -61,46 +32,31 @@ impl Quat {
 }
 
 impl Quat {
-    /// Returns `true` if every component is finite.
-    ///
-    /// A component is finite when it is neither `NaN` nor infinite.
     #[must_use]
     pub const fn is_finite(self) -> bool {
         self.x.is_finite() && self.y.is_finite() && self.z.is_finite() && self.w.is_finite()
     }
 
-    /// Returns the quaternion components as an array in `[x, y, z, w]` order.
     #[must_use]
     pub const fn to_array(self) -> [f32; 4] {
         [self.x, self.y, self.z, self.w]
     }
 
-    /// Returns the vector part `(x, y, z)` of the quaternion.
     #[must_use]
     pub const fn xyz(self) -> Vec3 {
         Vec3::new(self.x, self.y, self.z)
     }
 
-    /// Returns the squared magnitude of the quaternion.
-    ///
-    /// This is equivalent to `self.dot(self)` and avoids the square root
-    /// required by [`Self::length`].
     #[must_use]
     pub fn length_squared(self) -> f32 {
         self.dot(self)
     }
 
-    /// Returns the magnitude of the quaternion.
     #[must_use]
     pub fn length(self) -> f32 {
         self.length_squared().sqrt()
     }
 
-    /// Returns the quaternion magnitude while avoiding intermediate
-    /// overflow and underflow for finite components.
-    ///
-    /// Returns `NaN` if any component is non-finite.
-    /// Returns infinity if the actual magnitude exceeds `f32::MAX`.
     #[must_use]
     pub fn length_stable(self) -> f32 {
         if !self.is_finite() {
@@ -122,17 +78,11 @@ impl Quat {
         scale * scaled.length()
     }
 
-    /// Returns the dot product of two quaternions.
     #[must_use]
     pub fn dot(self, other: Self) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
-    /// Returns the normalized quaternion, or `None` if any component is not
-    /// finite or the quaternion is zero.
-    ///
-    /// Scales the components before computing the length to avoid
-    /// intermediate overflow and underflow.
     #[must_use]
     pub fn try_normalize(self) -> Option<Self> {
         if !self.is_finite() {
@@ -160,39 +110,21 @@ impl Quat {
         Some(scaled / scaled.length())
     }
 
-    /// Normalizes the quaternion without checking whether its length is valid.
-    ///
-    /// Zero-length quaternions and quaternions with non-finite or overflowing
-    /// lengths may produce non-finite or zero components.
-    /// Use [`Self::try_normalize`] when the input may be invalid.
     #[must_use]
     pub fn normalize(self) -> Self {
         self / self.length()
     }
 
-    /// Returns the conjugate of the quaternion.
-    ///
-    /// The vector part is negated while the scalar part remains unchanged.
     #[must_use]
     pub fn conjugate(self) -> Self {
         Self::new(-self.x, -self.y, -self.z, self.w)
     }
 
-    /// Returns the inverse quaternion.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the quaternion is zero, non-finite, or its inverse cannot
-    /// be represented by finite `f32` components.
     pub fn inverse(self) -> Self {
         self.try_inverse()
             .expect("cannot invert a zero or invalid quaternion")
     }
 
-    /// Returns the inverse quaternion.
-    ///
-    /// Returns `None` if the quaternion is zero, non-finite, or its inverse
-    /// cannot be represented by finite `f32` components.
     pub fn try_inverse(self) -> Option<Self> {
         if !self.is_finite() {
             return None;
@@ -223,21 +155,11 @@ impl Quat {
         inverse.is_finite().then_some(inverse)
     }
 
-    /// Converts this quaternion to an axis and angle in degrees.
-    ///
-    /// The quaternion is normalized before conversion. The axis for a zero
-    /// rotation is `Vec3::RIGHT`, and its angle is `0.0`.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the quaternion is zero or non-finite.
     pub fn to_axis_angle(self) -> (Vec3, f32) {
         let q = self
             .try_normalize()
             .expect("cannot convert an invalid quaternion to axis-angle");
 
-        // q and -q represent the same rotation. Choose the hemisphere with
-        // non-negative w to return an angle in [0, 180] degrees.
         let q = if q.w < 0.0 { -q } else { q };
 
         let sin_half = q.x.hypot(q.y).hypot(q.z);
@@ -252,10 +174,6 @@ impl Quat {
         (axis, angle)
     }
 
-    /// Attempts to rotate a vector by this quaternion.
-    ///
-    /// The quaternion and vector must be finite, and the quaternion must be
-    /// non-zero. Returns `None` if the resulting vector is non-finite.
     pub fn try_rotate_vec3(self, vector: Vec3) -> Option<Vec3> {
         if !vector.is_finite() {
             return None;
@@ -270,9 +188,6 @@ impl Quat {
         result.is_finite().then_some(result)
     }
 
-    /// Rotates a vector by this quaternion.
-    ///
-    /// The quaternion must be finite and non-zero. Invalid input causes a panic.
     pub fn rotate_vec3(self, vector: Vec3) -> Vec3 {
         self.try_rotate_vec3(vector)
             .expect("cannot rotate a vector with an invalid quaternion or vector")
@@ -280,14 +195,6 @@ impl Quat {
 }
 
 impl Quat {
-    /// Creates a quaternion from Euler angles in degrees.
-    ///
-    /// Uses the Hamilton product `qx * qy * qz`, where `qx`, `qy`, and `qz`
-    /// are rotations around the X, Y, and Z axes, respectively.
-    ///
-    /// When rotating a vector, the Z rotation is applied first, then Y,
-    /// then X. The returned quaternion is not guaranteed to be unit length
-    /// for all floating-point inputs.
     #[must_use]
     pub fn from_euler(x_degrees: f32, y_degrees: f32, z_degrees: f32) -> Self {
         let x = x_degrees.rem_euclid(360.0).to_radians();
@@ -306,23 +213,11 @@ impl Quat {
         )
     }
 
-    /// Creates a unit quaternion from an axis and an angle in degrees.
-    ///
-    /// The axis must be finite and non-zero, and the angle must be finite.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the axis or angle is invalid.
     pub fn from_axis_angle(axis: Vec3, degrees: f32) -> Self {
         Self::try_from_axis_angle(axis, degrees)
             .expect("axis-angle requires a finite non-zero axis and finite angle")
     }
 
-    /// Attempts to create a unit quaternion from an axis and an angle in degrees.
-    ///
-    /// The axis must be finite and non-zero. Non-finite angles are rejected.
-    /// The angle is reduced modulo 360 degrees before conversion to radians,
-    /// avoiding overflow during degree-to-radian conversion.
     pub fn try_from_axis_angle(axis: Vec3, degrees: f32) -> Option<Self> {
         if !degrees.is_finite() {
             return None;
@@ -338,23 +233,10 @@ impl Quat {
         result.is_finite().then_some(result)
     }
 
-    /// Creates a quaternion from a scaled axis.
-    ///
-    /// The vector direction defines the rotation axis and its length defines
-    /// the angle in degrees. Vectors with length at most `f32::EPSILON`
-    /// produce the identity quaternion.
-    ///
-    /// Returns the identity quaternion if the input is non-finite or the
-    /// rotation cannot be represented safely.
     pub fn from_scaled_axis(scaled_axis: Vec3) -> Self {
         Self::try_from_scaled_axis(scaled_axis).unwrap_or(Self::IDENTITY)
     }
 
-    /// Attempts to create a quaternion from a scaled axis.
-    ///
-    /// The vector direction defines the rotation axis and its length defines
-    /// the angle in degrees. Returns `None` for non-finite input or if the
-    /// resulting rotation cannot be represented safely.
     pub fn try_from_scaled_axis(scaled_axis: Vec3) -> Option<Self> {
         if !scaled_axis.is_finite() {
             return None;
@@ -374,19 +256,16 @@ impl Quat {
         Self::try_from_axis_angle(axis, degrees)
     }
 
-    /// Creates a quaternion from `(x, y, z, w)` components.
     #[must_use]
     pub const fn from_xyzw(x: f32, y: f32, z: f32, w: f32) -> Self {
         Self::new(x, y, z, w)
     }
 
-    /// Creates a quaternion from an array in `[x, y, z, w]` order.
     #[must_use]
     pub const fn from_array(arr: [f32; 4]) -> Self {
         Self::new(arr[0], arr[1], arr[2], arr[3])
     }
 
-    /// Creates a rotation around the X axis by the given angle in degrees.
     #[must_use]
     pub fn from_rotation_x(degrees: f32) -> Self {
         let radians = degrees.rem_euclid(360.0).to_radians();
@@ -395,7 +274,6 @@ impl Quat {
         Self::new(sin, 0.0, 0.0, cos)
     }
 
-    /// Creates a rotation around the Y axis by the given angle in degrees.
     #[must_use]
     pub fn from_rotation_y(degrees: f32) -> Self {
         let radians = degrees.rem_euclid(360.0).to_radians();
@@ -404,7 +282,6 @@ impl Quat {
         Self::new(0.0, sin, 0.0, cos)
     }
 
-    /// Creates a rotation around the Z axis by the given angle in degrees.
     #[must_use]
     pub fn from_rotation_z(degrees: f32) -> Self {
         let radians = degrees.rem_euclid(360.0).to_radians();
@@ -417,10 +294,6 @@ impl Quat {
 impl Mul for Quat {
     type Output = Self;
 
-    /// Multiplies two quaternions.
-    ///
-    /// The result composes the rotations: applying `rhs` first and then
-    /// `self` is equivalent to applying the result.
     fn mul(self, rhs: Self) -> Self::Output {
         Self::new(
             self.w * rhs.x + self.x * rhs.w + self.y * rhs.z - self.z * rhs.y,
@@ -432,7 +305,6 @@ impl Mul for Quat {
 }
 
 impl MulAssign for Quat {
-    /// Multiplies this quaternion by another in place.
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
     }
@@ -441,14 +313,12 @@ impl MulAssign for Quat {
 impl Mul<f32> for Quat {
     type Output = Self;
 
-    /// Multiplies each component of the quaternion by a scalar.
     fn mul(self, rhs: f32) -> Self::Output {
         Self::new(self.x * rhs, self.y * rhs, self.z * rhs, self.w * rhs)
     }
 }
 
 impl MulAssign<f32> for Quat {
-    /// Multiplies each component of this quaternion by a scalar in place.
     fn mul_assign(&mut self, rhs: f32) {
         self.x *= rhs;
         self.y *= rhs;
@@ -460,13 +330,11 @@ impl MulAssign<f32> for Quat {
 impl Div<f32> for Quat {
     type Output = Self;
 
-    /// Divides each component of the quaternion by a scalar.
     fn div(self, rhs: f32) -> Self::Output {
         Self::new(self.x / rhs, self.y / rhs, self.z / rhs, self.w / rhs)
     }
 }
 impl DivAssign<f32> for Quat {
-    /// Divides each component of this quaternion by a scalar in place.
     fn div_assign(&mut self, rhs: f32) {
         self.x /= rhs;
         self.y /= rhs;
@@ -478,9 +346,6 @@ impl DivAssign<f32> for Quat {
 impl Neg for Quat {
     type Output = Self;
 
-    /// Negates each component of the quaternion.
-    ///
-    /// The negated quaternion represents the same rotation.
     fn neg(self) -> Self::Output {
         Self::new(-self.x, -self.y, -self.z, -self.w)
     }
@@ -489,11 +354,6 @@ impl Neg for Quat {
 impl Mul<Vec3> for Quat {
     type Output = Vec3;
 
-    /// Rotates a vector by this quaternion.
-    ///
-    /// # Panics
-    ///
-    /// Panics under the same conditions as [`Self::rotate_vec3`].
     fn mul(self, rhs: Vec3) -> Self::Output {
         self.rotate_vec3(rhs)
     }

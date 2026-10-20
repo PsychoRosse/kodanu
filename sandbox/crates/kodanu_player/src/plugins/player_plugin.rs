@@ -56,7 +56,7 @@ fn player_move_system(
         velocity.linear.x += (target_velocity.x - velocity.linear.x) * smoth_factor;
         velocity.linear.z += (target_velocity.z - velocity.linear.z) * smoth_factor;
 
-        if input.key_just_pressed(Key::Space) && state.is_ground() {
+        if input.key_held_for(Key::Space, 0.1) && state.is_ground() {
             velocity.linear.y = (2.0 * Velocity::GRAVITY * settings.jump_height).sqrt();
         }
 

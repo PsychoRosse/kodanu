@@ -1,33 +1,3 @@
-//! Core mathematical types and utilities for the Kodanu game engine.
-//!
-//! `kodanu_math` provides vectors, quaternions, matrices, and types related
-//! to mouse input and window dimensions.
-//!
-//! # Main types
-//!
-//! - [`Vec2`], [`Vec3`], and [`Vec4`] for vector arithmetic.
-//! - [`Quat`] for representing 3D rotations.
-//! - [`Mat4`] for 4 × 4 matrix operations and transformations.
-//! - [`MousePos`], [`MouseDelta`], [`MouseScroll`], and
-//!   [`MouseScrollDelta`] for mouse input data.
-//! - [`SurfaceSize`] and [`WindowSize`] for surface and window dimensions.
-//!
-//! # Examples
-//!
-//! ```
-//! use kodanu_math::{Mat4, Quat, Vec3};
-//!
-//! let position = Vec3::new(1.0, 2.0, 3.0);
-//! let rotation = Quat::from_rotation_y(90.0);
-//! let transform = Mat4::from_translation(position)
-//!     * Mat4::from_quat(rotation);
-//! ```
-//!
-//! Commonly used types can also be imported through [`prelude`].
-
-#![warn(missing_docs)]
-#![warn(rustdoc::broken_intra_doc_links)]
-
 mod mat4;
 mod mouse_delta;
 mod mouse_pos;
@@ -40,11 +10,6 @@ mod vec3;
 mod vec4;
 mod window_size;
 
-/// Commonly used types from `kodanu_math`.
-///
-/// ```
-/// use kodanu_math::prelude::*;
-/// ```
 pub mod prelude {
     pub use crate::{
         Mat4, MouseDelta, MousePos, MouseScroll, MouseScrollDelta, Quat, SurfaceSize, Vec2, Vec3,

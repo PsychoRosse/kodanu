@@ -9,7 +9,7 @@ pub struct ShaderStorage;
 
 impl ShaderStorage {
     pub fn vertex(device: &WgpuDevice) -> WgpuShaderModule {
-        let source: Cow<str> = read_to_string(concat!(
+        let source = read_to_string(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/src/wgsl/mesh.vert.wgsl"
         ))
@@ -37,7 +37,7 @@ impl ShaderStorage {
     }
 
     pub fn normal(device: &WgpuDevice) -> WgpuShaderModule {
-        let source: Cow<str> = read_to_string(concat!(
+        let source = read_to_string(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/src/wgsl/mesh.normal.wgsl"
         ))
