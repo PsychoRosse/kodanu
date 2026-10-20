@@ -1,5 +1,4 @@
 mod render;
-mod ui;
 
 pub mod prelude {
     pub use crate::{AssetServer, Backend, Color, Material, Mesh, MeshRenderer, Vertex};
