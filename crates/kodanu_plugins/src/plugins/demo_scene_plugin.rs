@@ -6,11 +6,6 @@ pub use {
     kodanu_transform::Transform,
 };
 
-/// Spawns a demo scene during startup.
-///
-/// The plugin registers a startup system that spawns a static platform,
-/// three dynamic cubes, and a directional light. Every spawned mesh is
-/// simulated with [`RigidBody`] and [`Collider`].
 pub struct DemoScenePlugin;
 
 impl Plugin for DemoScenePlugin {
@@ -19,7 +14,6 @@ impl Plugin for DemoScenePlugin {
     }
 }
 
-/// Spawns the platform, the dynamic cubes, and the directional light.
 fn demo_scene_system(commands: Commands) {
     commands.spawn((
         Transform::new(
