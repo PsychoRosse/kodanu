@@ -3,13 +3,19 @@ use wgpu::{
     VertexBufferLayout as WgpuVertexBufferLayout, VertexStepMode as WgpuVertexStepMode,
 };
 
-use bytemuck::{Pod, Zeroable};
+use {
+    bytemuck::{Pod, Zeroable},
+    kodanu_macros::Getters,
+};
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Pod, Zeroable)]
+#[derive(Getters, Debug, Clone, Copy, Pod, Zeroable, PartialEq, PartialOrd)]
 pub struct Vertex {
+    #[getter(copy)]
     position: [f32; 3],
+    #[getter(copy)]
     normal: [f32; 3],
+    #[getter(copy)]
     uv: [f32; 2],
 }
 
@@ -50,19 +56,5 @@ impl Vertex {
             step_mode: WgpuVertexStepMode::Vertex,
             attributes: &Self::ATTRIBUTES,
         }
-    }
-}
-
-impl Vertex {
-    pub const fn position(&self) -> [f32; 3] {
-        self.position
-    }
-
-    pub const fn normal(&self) -> [f32; 3] {
-        self.normal
-    }
-
-    pub const fn uv(&self) -> [f32; 2] {
-        self.uv
     }
 }

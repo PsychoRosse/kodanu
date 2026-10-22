@@ -10,6 +10,7 @@ use wgpu::{
 
 use std::any::Any;
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct LightLayout {
     layout: WgpuBindGroupLayout,
 }

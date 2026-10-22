@@ -4,6 +4,7 @@ use {
     bytemuck::bytes_of,
     kodanu_camera::{ActiveCamera, Camera},
     kodanu_ecs::{Commands, EventReader, Query, Read, Res, Resource, Write},
+    kodanu_macros::Getters,
     kodanu_math::Mat4,
     kodanu_math::SurfaceSize,
     kodanu_transform::Transform,
@@ -18,9 +19,11 @@ use wgpu::{
 
 use wgpu::util::{BufferInitDescriptor as WgpuBufferInitDescriptor, DeviceExt as WgpuDeviceExt};
 
-#[derive(Resource)]
+#[derive(Getters, Resource)]
 pub(crate) struct CameraRenderer {
+    #[getter()]
     buffer: WgpuBuffer,
+    #[getter()]
     bind_group: WgpuBindGroup,
 }
 
@@ -53,7 +56,7 @@ impl CameraRenderer {
     ) {
         commands.with_res(CameraRenderer::new(
             instance.device(),
-            storage.expect_get::<CameraLayout>(),
+            storage.get_now::<CameraLayout>(),
         ));
     }
 
@@ -79,11 +82,5 @@ impl CameraRenderer {
 impl CameraRenderer {
     pub fn update(&self, queue: &WgpuQueue, view_proj: Mat4) {
         queue.write_buffer(&self.buffer, 0, bytes_of(&CameraUniform::from(view_proj)));
-    }
-}
-
-impl CameraRenderer {
-    pub fn bind_group(&self) -> &WgpuBindGroup {
-        &self.bind_group
     }
 }

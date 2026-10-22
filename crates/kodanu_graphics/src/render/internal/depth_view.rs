@@ -9,12 +9,15 @@ use wgpu::{
 
 use {
     kodanu_ecs::{Commands, EventReader, Res, ResMut, Resource},
+    kodanu_macros::Getters,
     kodanu_math::SurfaceSize,
 };
 
-#[derive(Resource)]
+#[derive(Getters, Resource)]
 pub(crate) struct DepthView {
+    #[getter()]
     texture: WgpuTexture,
+    #[getter()]
     view: WgpuTextureView,
 }
 
@@ -63,9 +66,5 @@ impl DepthView {
 
         self.texture = depth.texture;
         self.view = depth.view;
-    }
-
-    pub fn view(&self) -> &WgpuTextureView {
-        &self.view
     }
 }

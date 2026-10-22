@@ -30,7 +30,7 @@ impl PipelineLayoutStorage {
             .and_then(|layout| layout.as_any().downcast_ref::<L>())
     }
 
-    pub fn expect_get<L: BindGroupLayout>(&self) -> &WgpuBindGroupLayout {
+    pub fn get_now<L: BindGroupLayout>(&self) -> &WgpuBindGroupLayout {
         self.get::<L>()
             .unwrap_or_else(|| panic!("{}", PipelineLayoutStorageError::PipelineNotFound))
             .get()
@@ -59,7 +59,7 @@ impl PipelineLayoutStorage {
 }
 
 impl PipelineLayoutStorage {
-    pub fn pipeline_builder_system(
+    pub fn pipeline_builder_startup_system(
         commands: Commands,
         instance: Res<Instance>,
         mut storage: ResMut<PipelineLayoutStorage>,

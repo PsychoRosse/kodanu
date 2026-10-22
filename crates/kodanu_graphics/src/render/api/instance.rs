@@ -17,23 +17,28 @@ use wgpu::{
 
 use {
     kodanu_ecs::{EventReader, ResMut, Resource},
+    kodanu_macros::Getters,
     kodanu_math::SurfaceSize,
     std::iter::once,
 };
 
-#[derive(Resource)]
+#[derive(Getters, Resource, Debug)]
 pub struct Instance {
     surface: WgpuSurface<'static>,
     config: WgpuSurfaceConfiguration,
-    _instance: WgpuInstance,
-    _adapter: WgpuAdapter,
+    #[getter()]
+    instance: WgpuInstance,
+    #[getter()]
+    adapter: WgpuAdapter,
+    #[getter()]
     device: WgpuDevice,
+    #[getter()]
     queue: WgpuQueue,
 }
 
 impl Instance {
     pub async fn new(descriptor: InstanceDescriptor) -> Self {
-        let size = descriptor.size();
+        let size = descriptor.surface_size();
         let target = descriptor.surface_target();
 
         let instance = WgpuInstance::new(WgpuInstanceDescriptor::from(descriptor));
@@ -94,9 +99,9 @@ impl Instance {
 
         Self {
             config,
-            _instance: instance,
+            instance,
             surface,
-            _adapter: adapter,
+            adapter,
             device,
             queue,
         }
@@ -104,7 +109,8 @@ impl Instance {
 }
 
 impl Instance {
-    pub(crate) fn instance_update(event: EventReader<SurfaceSize>, mut instance: ResMut<Instance>) {
+    #[inline(always)]
+    pub(crate) fn instance_resize_system(event: EventReader<SurfaceSize>, mut instance: ResMut<Instance>) {
         for event in event.iter() {
             instance.resize(*event);
         }
@@ -112,36 +118,34 @@ impl Instance {
 }
 
 impl Instance {
-    pub const fn queue(&self) -> &WgpuQueue {
-        &self.queue
-    }
-
-    pub const fn device(&self) -> &WgpuDevice {
-        &self.device
-    }
-
+    #[inline]
     pub fn format(&self) -> WgpuTextureFormat {
         WgpuColorTargetState::from(self.config.format).format
     }
 
+    #[inline]
     pub fn size(&self) -> SurfaceSize {
         SurfaceSize::clamped(self.config.width, self.config.height)
     }
 
+    #[inline]
     pub(crate) fn present(&self, encoder: WgpuCommandEncoder, frame: WgpuSurfaceTexture) {
         self.queue.submit(once(encoder.finish()));
         self.queue.present(frame);
     }
 
+    #[inline]
     pub(crate) fn create_encoder(&self) -> WgpuCommandEncoder {
         self.device
             .create_command_encoder(&WgpuCommandEncoderDescriptor::default())
     }
 
+    #[inline]
     pub(crate) fn acquire_frame(&self) -> WgpuCurrentSurfaceTexture {
         self.surface.get_current_texture()
     }
 
+    #[inline]
     pub(crate) fn resize(&mut self, size: SurfaceSize) {
         self.config.width = size.width();
         self.config.height = size.height();

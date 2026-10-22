@@ -6,6 +6,6 @@ pub struct InstanceUpdatePlugin;
 
 impl Plugin for InstanceUpdatePlugin {
     fn build(&self, registry: &mut impl Registry) {
-        registry.with_system(Stage::PreRender, Instance::instance_update);
+        registry.with_system(Stage::PreRender, Instance::instance_resize_system);
     }
 }

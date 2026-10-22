@@ -14,12 +14,14 @@ pub(crate) struct LightUniform {
 }
 
 impl Default for LightUniform {
+    #[inline]
     fn default() -> Self {
         Self::new(Vec3::new(0.0, 0.0, 0.0), 1.0, Color::WHITE)
     }
 }
 
 impl LightUniform {
+    #[inline]
     pub fn new(direction: Vec3, intensity: f32, color: Color) -> Self {
         Self {
             direction: direction.to_array(),

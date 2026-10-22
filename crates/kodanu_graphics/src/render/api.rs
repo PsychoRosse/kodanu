@@ -2,7 +2,7 @@ mod asset_server;
 mod backend;
 mod bind_group_layout;
 mod color;
-mod handle;
+mod asset_handle;
 mod instance;
 mod instance_descriptor;
 mod instance_error;
@@ -13,7 +13,7 @@ mod vertex;
 
 pub use {
     asset_server::AssetServer, backend::Backend, bind_group_layout::BindGroupLayout, color::Color,
-    handle::Handle, instance::Instance, instance_descriptor::InstanceDescriptor,
+    asset_handle::AssetHandle, instance::Instance, instance_descriptor::InstanceDescriptor,
     instance_error::InstanceError, material::Material, mesh::Mesh,
     pipeline_layout_storage_error::PipelineLayoutStorageError, vertex::Vertex,
 };

@@ -1,4 +1,4 @@
-use crate::{AssetStorage, Handle, MeshRenderer};
+use crate::{AssetStorage, AssetHandle, MeshRenderer};
 
 use std::{
     any::{Any, TypeId},
@@ -21,10 +21,7 @@ impl AssetServer {
 }
 
 impl AssetServer {
-    pub fn add<A>(&mut self, asset: A) -> Handle<A>
-    where
-        A: Any + Send + Sync,
-    {
+    pub fn add<A: Any + Send + Sync>(&mut self, asset: A) -> AssetHandle<A> {
         self.assets
             .entry(TypeId::of::<A>())
             .or_insert_with(|| Box::new(AssetStorage::<A>::default()))
@@ -33,10 +30,7 @@ impl AssetServer {
             .add(asset)
     }
 
-    pub fn get<A>(&self, handle: Handle<A>) -> Option<&A>
-    where
-        A: Any + Send + Sync,
-    {
+    pub fn get<A: Any + Send + Sync>(&self, handle: AssetHandle<A>) -> Option<&A> {
         self.assets
             .get(&TypeId::of::<A>())
             .and_then(|asset| asset.downcast_ref::<AssetStorage<A>>())?
@@ -47,17 +41,17 @@ impl AssetServer {
 impl AssetServer {
     pub(crate) fn asset_system(mut server: ResMut<AssetServer>, query: Query<Write<MeshRenderer>>) {
         for renderer in query {
-            if renderer.material_handle().is_some() || renderer.mesh_handle().is_some() {
-                continue;
+            if renderer.mesh_handle().is_none()
+                && let Some(mesh) = renderer.take_mesh_pending()
+            {
+                renderer.set_mesh_handle(Some(server.add(mesh)));
             }
 
-            if let Some(mesh) = renderer.take_mesh_pending() {
-                renderer.set_mesh_handle(Some(server.add(mesh)));
-            };
-
-            if let Some(material) = renderer.take_material_pending() {
+            if renderer.material_handle().is_none()
+                && let Some(material) = renderer.take_material_pending()
+            {
                 renderer.set_material_handle(Some(server.add(material)));
-            };
+            }
         }
     }
 }

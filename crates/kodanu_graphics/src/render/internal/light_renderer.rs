@@ -12,11 +12,14 @@ use wgpu::util::{BufferInitDescriptor as WgpuBufferInitDescriptor, DeviceExt as 
 use {
     bytemuck::bytes_of,
     kodanu_ecs::{Commands, Query, Read, Res, Resource},
+    kodanu_macros::Getters,
 };
 
-#[derive(Resource)]
+#[derive(Getters, Resource)]
 pub(crate) struct LightRenderer {
+    #[getter()]
     buffer: WgpuBuffer,
+    #[getter()]
     bind_group: WgpuBindGroup,
 }
 
@@ -49,10 +52,11 @@ impl LightRenderer {
     ) {
         commands.with_res(LightRenderer::new(
             instance.device(),
-            storage.expect_get::<LightLayout>(),
+            storage.get_now::<LightLayout>(),
         ));
     }
 
+    #[inline(always)]
     pub fn light_system(
         query: Query<Read<DirectLight>>,
         render: Res<LightRenderer>,
@@ -65,18 +69,14 @@ impl LightRenderer {
 }
 
 impl LightRenderer {
+    #[inline]
     pub fn update(&self, queue: &WgpuQueue, light: &DirectLight) {
         queue.write_buffer(&self.buffer, 0, bytes_of(&LightUniform::from(light)));
     }
 }
 
-impl LightRenderer {
-    pub fn bind_group(&self) -> &WgpuBindGroup {
-        &self.bind_group
-    }
-}
-
 impl From<&DirectLight> for LightUniform {
+    #[inline]
     fn from(value: &DirectLight) -> Self {
         Self::new(
             value.direction().normalize(),

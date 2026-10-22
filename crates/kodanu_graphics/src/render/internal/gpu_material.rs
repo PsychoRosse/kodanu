@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::{Material, MaterialUniform};
 
 use wgpu::{
@@ -10,10 +8,13 @@ use wgpu::{
 
 use wgpu::util::{BufferInitDescriptor as WgpuBufferInitDescriptor, DeviceExt as WgpuDeviceExt};
 
-use bytemuck::bytes_of;
+use {bytemuck::bytes_of, kodanu_macros::Getters};
 
+#[derive(Getters, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct GpuMaterial {
+    #[getter()]
     buffer: WgpuBuffer,
+    #[getter()]
     bind_group: WgpuBindGroup,
 }
 
@@ -35,15 +36,5 @@ impl GpuMaterial {
         });
 
         Self { buffer, bind_group }
-    }
-}
-
-impl GpuMaterial {
-    pub fn buffer(&self) -> &WgpuBuffer {
-        &self.buffer
-    }
-
-    pub fn bind_group(&self) -> &WgpuBindGroup {
-        &self.bind_group
     }
 }

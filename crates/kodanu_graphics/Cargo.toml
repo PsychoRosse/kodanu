@@ -12,9 +12,11 @@ bytemuck = { workspace = true }
 pollster = { workspace = true }
 bitflags = { workspace = true }
 thiserror = { workspace = true }
+serde = { workspace = true }
 
 kodanu_math = { workspace = true }
 kodanu_transform = { workspace = true }
 kodanu_ecs = { workspace = true }
 kodanu_window = { workspace = true }
 kodanu_camera = { workspace = true }
+kodanu_macros = { workspace = true }

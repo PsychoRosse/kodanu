@@ -1,21 +1,23 @@
-use crate::{Color, Handle, Material, Mesh};
+use crate::{Color, AssetHandle, Material, Mesh};
 
-use kodanu_ecs::Component;
+use {kodanu_ecs::Component, kodanu_macros::Getters};
 
-#[derive(Component, Debug)]
+#[derive(Getters, Component, Debug, Clone)]
 pub struct MeshRenderer {
+    #[getter(copy)]
+    mesh_handle: Option<AssetHandle<Mesh>>,
     pending_mesh: Option<Mesh>,
+    #[getter(copy)]
+    material_handle: Option<AssetHandle<Material>>,
     pending_material: Option<Material>,
-    mesh: Option<Handle<Mesh>>,
-    material: Option<Handle<Material>>,
 }
 
 impl MeshRenderer {
     pub fn new(mesh: Option<Mesh>, material: Option<Material>) -> Self {
         Self {
-            mesh: None,
+            mesh_handle: None,
             pending_mesh: mesh,
-            material: None,
+            material_handle: None,
             pending_material: material,
         }
     }
@@ -28,28 +30,21 @@ impl MeshRenderer {
 }
 
 impl MeshRenderer {
-    pub const fn mesh_handle(&self) -> Option<Handle<Mesh>> {
-        self.mesh
-    }
-
     pub const fn take_mesh_pending(&mut self) -> Option<Mesh> {
         self.pending_mesh.take()
-    }
-
-    pub const fn material_handle(&self) -> Option<Handle<Material>> {
-        self.material
     }
 
     pub const fn take_material_pending(&mut self) -> Option<Material> {
         self.pending_material.take()
     }
 }
+
 impl MeshRenderer {
-    pub(crate) const fn set_mesh_handle(&mut self, handle: Option<Handle<Mesh>>) {
-        self.mesh = handle
+    pub(crate) const fn set_mesh_handle(&mut self, handle: Option<AssetHandle<Mesh>>) {
+        self.mesh_handle = handle
     }
 
-    pub(crate) const fn set_material_handle(&mut self, handle: Option<Handle<Material>>) {
-        self.material = handle
+    pub(crate) const fn set_material_handle(&mut self, handle: Option<AssetHandle<Material>>) {
+        self.material_handle = handle
     }
 }

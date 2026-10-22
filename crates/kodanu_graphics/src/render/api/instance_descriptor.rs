@@ -6,16 +6,23 @@ use wgpu::{
     MemoryBudgetThresholds as WgpuMemoryBudgetThresholds,
 };
 
-use {kodanu_math::SurfaceSize, kodanu_window::SurfaceTarget};
+use {kodanu_macros::Getters, kodanu_math::SurfaceSize, kodanu_window::SurfaceTarget};
 
+#[derive(Getters, Debug)]
 pub struct InstanceDescriptor {
     descriptor: WgpuInstanceDescriptor,
-    target: SurfaceTarget,
-    size: SurfaceSize,
+    #[getter(copy)]
+    surface_target: SurfaceTarget,
+    #[getter(copy)]
+    surface_size: SurfaceSize,
 }
 
 impl InstanceDescriptor {
-    pub fn with(backend: Backend, target: SurfaceTarget, size: SurfaceSize) -> Self {
+    pub fn with(
+        backend: Backend,
+        surface_target: SurfaceTarget,
+        surface_size: SurfaceSize,
+    ) -> Self {
         Self {
             descriptor: WgpuInstanceDescriptor {
                 backends: WgpuBackends::from(backend),
@@ -24,19 +31,9 @@ impl InstanceDescriptor {
                 backend_options: WgpuBackendOptions::default(),
                 display: None,
             },
-            target,
-            size,
+            surface_target,
+            surface_size,
         }
-    }
-}
-
-impl InstanceDescriptor {
-    pub const fn surface_target(&self) -> SurfaceTarget {
-        self.target
-    }
-
-    pub const fn size(&self) -> SurfaceSize {
-        self.size
     }
 }
 

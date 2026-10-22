@@ -3,7 +3,7 @@ use bitflags::bitflags;
 use wgpu::Backends as WgpuBackends;
 
 bitflags! {
-    #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct Backend: u32 {
         const VULKAN = 1 << 0;
         const METAL = 1 << 1;

@@ -9,6 +9,7 @@ pub(crate) struct MaterialUniform {
 }
 
 impl From<&Material> for MaterialUniform {
+    #[inline]
     fn from(value: &Material) -> Self {
         Self {
             color: value.color().get(),

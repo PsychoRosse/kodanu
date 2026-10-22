@@ -15,10 +15,11 @@ use wgpu::{
     VertexState as WgpuVertexState,
 };
 
-use kodanu_ecs::Resource;
+use {kodanu_ecs::Resource, kodanu_macros::Getters};
 
-#[derive(Resource)]
+#[derive(Getters, Resource)]
 pub(crate) struct RenderPipeline {
+    #[getter(name = "get")]
     pipeline: WgpuRenderPipeline,
 }
 
@@ -79,11 +80,5 @@ impl RenderPipeline {
         });
 
         Self { pipeline }
-    }
-}
-
-impl RenderPipeline {
-    pub fn get(&self) -> &WgpuRenderPipeline {
-        &self.pipeline
     }
 }

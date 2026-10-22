@@ -1,14 +1,19 @@
 use crate::Mesh;
 
-use wgpu::{Buffer as WgpuBuffer, BufferUsages as WgpuBufferUsages, Device as WgpuDevice};
+use wgpu::{
+    Buffer as WgpuBuffer, BufferUsages as WgpuBufferUsages, Device as WgpuDevice,
+    util::{BufferInitDescriptor as WgpuBufferInitDescriptor, DeviceExt as WgpuDeviceExt},
+};
 
-use wgpu::util::{BufferInitDescriptor as WgpuBufferInitDescriptor, DeviceExt as WgpuDeviceExt};
+use {bytemuck::cast_slice, kodanu_macros::Getters};
 
-use bytemuck::cast_slice;
-
+#[derive(Getters, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct GpuMesh {
+    #[getter()]
     vertex_buffer: WgpuBuffer,
+    #[getter()]
     index_buffer: WgpuBuffer,
+    #[getter(copy)]
     index_count: u32,
 }
 
@@ -33,19 +38,5 @@ impl GpuMesh {
             index_buffer,
             index_count,
         }
-    }
-}
-
-impl GpuMesh {
-    pub fn vertex_buffer(&self) -> &WgpuBuffer {
-        &self.vertex_buffer
-    }
-
-    pub fn index_buffer(&self) -> &WgpuBuffer {
-        &self.index_buffer
-    }
-
-    pub fn index_count(&self) -> u32 {
-        self.index_count
     }
 }

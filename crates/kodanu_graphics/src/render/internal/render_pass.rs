@@ -10,6 +10,7 @@ use wgpu::{
 pub(crate) struct RenderPass;
 
 impl<'r> RenderPass {
+    #[inline]
     pub fn begin(
         encoder: &'r mut WgpuCommandEncoder,
         color: &WgpuTextureView,

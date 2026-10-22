@@ -3,6 +3,7 @@ mod camera_layout;
 mod camera_renderer;
 mod camera_uniform;
 mod depth_view;
+mod gpu_asset_cache;
 mod gpu_material;
 mod gpu_mesh;
 mod gpu_model;
@@ -22,8 +23,8 @@ mod render_queue;
 
 pub(crate) use {
     asset_storage::AssetStorage, camera_layout::CameraLayout, camera_renderer::CameraRenderer,
-    camera_uniform::CameraUniform, depth_view::DepthView, gpu_material::GpuMaterial,
-    gpu_mesh::GpuMesh, gpu_model::GpuModel, light_layout::LightLayout,
+    camera_uniform::CameraUniform, depth_view::DepthView, gpu_asset_cache::GpuAssetCache,
+    gpu_material::GpuMaterial, gpu_mesh::GpuMesh, gpu_model::GpuModel, light_layout::LightLayout,
     light_renderer::LightRenderer, light_uniform::LightUniform, material_layout::MaterialLayout,
     material_uniform::MaterialUniform, model_layout::ModelLayout, model_uniform::ModelUniform,
     msaa_view::MsaaView, pipeline_layout_storage::PipelineLayoutStorage, render_item::RenderItem,

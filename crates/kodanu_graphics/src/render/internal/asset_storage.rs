@@ -1,18 +1,8 @@
-use crate::Handle;
+use crate::AssetHandle;
 
 use std::num::NonZeroU32;
 
-pub(crate) struct AssetSlot<A> {
-    gens: NonZeroU32,
-    asset: Option<A>,
-}
-
-impl<A> AssetSlot<A> {
-    pub fn new(gens: NonZeroU32, value: Option<A>) -> Self {
-        Self { gens, asset: value }
-    }
-}
-
+#[derive(Debug)]
 pub(crate) struct AssetStorage<A> {
     slots: Vec<AssetSlot<A>>,
     free: Vec<u32>,
@@ -28,13 +18,22 @@ impl<A> Default for AssetStorage<A> {
 }
 
 impl<A> AssetStorage<A> {
-    pub fn add(&mut self, asset: A) -> Handle<A> {
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            slots: Vec::with_capacity(capacity),
+            free: Vec::with_capacity(capacity),
+        }
+    }
+}
+
+impl<A> AssetStorage<A> {
+    pub fn add(&mut self, asset: A) -> AssetHandle<A> {
         if let Some(id) = self.free.pop() {
             let slot = &mut self.slots[id as usize];
 
             slot.asset = Some(asset);
 
-            return Handle::new(id, slot.gens);
+            return AssetHandle::new(id, slot.gens);
         }
 
         let id = self.slots.len() as u32;
@@ -42,11 +41,10 @@ impl<A> AssetStorage<A> {
 
         self.slots.push(AssetSlot::new(gens, Some(asset)));
 
-        Handle::new(id, gens)
+        AssetHandle::new(id, gens)
     }
 
-    #[allow(dead_code)]
-    pub fn remove(&mut self, id: Handle<A>) -> Option<A> {
+    pub fn remove(&mut self, id: AssetHandle<A>) -> Option<A> {
         let slot = self.slots.get_mut(id.as_usize())?;
 
         if slot.gens == id.gens() {
@@ -63,7 +61,7 @@ impl<A> AssetStorage<A> {
         None
     }
 
-    pub fn get(&self, id: Handle<A>) -> Option<&A> {
+    pub fn get(&self, id: AssetHandle<A>) -> Option<&A> {
         let slot = self.slots.get(id.as_usize())?;
 
         if slot.gens == id.gens() {
@@ -73,8 +71,7 @@ impl<A> AssetStorage<A> {
         None
     }
 
-    #[allow(dead_code)]
-    pub fn get_mut(&mut self, id: Handle<A>) -> Option<&mut A> {
+    pub fn get_mut(&mut self, id: AssetHandle<A>) -> Option<&mut A> {
         let slot = self.slots.get_mut(id.as_usize())?;
 
         if slot.gens == id.gens() {
@@ -82,5 +79,17 @@ impl<A> AssetStorage<A> {
         }
 
         None
+    }
+}
+
+#[derive(Debug, Clone)]
+struct AssetSlot<A> {
+    gens: NonZeroU32,
+    asset: Option<A>,
+}
+
+impl<A> AssetSlot<A> {
+    pub fn new(gens: NonZeroU32, value: Option<A>) -> Self {
+        Self { gens, asset: value }
     }
 }

@@ -1,11 +1,17 @@
 use crate::Color;
 
-use {kodanu_ecs::Component, kodanu_math::Vec3};
+use {
+    kodanu_macros::Getters,
+    {kodanu_ecs::Component, kodanu_math::Vec3},
+};
 
-#[derive(Component, Debug)]
+#[derive(Getters, Component, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct DirectLight {
+    #[getter(copy)]
     direction: Vec3,
+    #[getter(copy)]
     color: Color,
+    #[getter(copy)]
     intensity: f32,
 }
 
@@ -30,18 +36,6 @@ impl DirectLight {
 }
 
 impl DirectLight {
-    pub const fn direction(&self) -> Vec3 {
-        self.direction
-    }
-
-    pub const fn color(&self) -> Color {
-        self.color
-    }
-
-    pub const fn intensity(&self) -> f32 {
-        self.intensity
-    }
-
     pub const fn set_direction(&mut self, direction: Vec3) {
         self.direction = direction
     }

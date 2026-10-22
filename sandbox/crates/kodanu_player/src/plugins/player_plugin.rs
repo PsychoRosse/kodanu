@@ -50,8 +50,8 @@ fn player_move_system(
         velocity.linear.x += (target_velocity.x - velocity.linear.x) * smoth_factor;
         velocity.linear.z += (target_velocity.z - velocity.linear.z) * smoth_factor;
 
-        if input.key_held_for(Key::Space, 0.1) && state.is_ground() {
-            velocity.linear.y = (2.0 * Velocity::GRAVITY * settings.jump_height).sqrt();
+        if input.key_pressed(Key::Space) && state.is_ground() {
+            velocity.linear.y = (2.0 * Velocity::BASE_GRAVITY * settings.jump_height).sqrt();
         }
 
         transform.position += velocity.linear * delta;
@@ -91,7 +91,7 @@ fn player_ground_check_system(
             velocity.linear.y = 0.0;
         } else {
             state.set(false);
-            velocity.linear.y -= Velocity::GRAVITY * time.delta();
+            velocity.linear.y -= Velocity::BASE_GRAVITY * time.delta();
         }
     }
 }

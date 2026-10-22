@@ -10,7 +10,7 @@ impl Plugin for PipelineBuilderPlugin {
             .with_res(PipelineLayoutStorage::default())
             .with_system(
                 Stage::Startup,
-                PipelineLayoutStorage::pipeline_builder_system,
+                PipelineLayoutStorage::pipeline_builder_startup_system,
             );
     }
 }

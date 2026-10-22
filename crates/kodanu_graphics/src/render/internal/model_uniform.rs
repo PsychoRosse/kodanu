@@ -11,6 +11,7 @@ pub(crate) struct ModelUniform {
 }
 
 impl From<Mat4> for ModelUniform {
+    #[inline]
     fn from(value: Mat4) -> Self {
         Self {
             model: value.to_cols_array_2d(),

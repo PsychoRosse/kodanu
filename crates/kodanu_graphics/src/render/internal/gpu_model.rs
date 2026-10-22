@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::ModelUniform;
 
 use wgpu::util::{BufferInitDescriptor as WgpuBufferInitDescriptor, DeviceExt as WgpuDeviceExt};
@@ -11,10 +9,13 @@ use wgpu::{
     Queue as WgpuQueue,
 };
 
-use {bytemuck::bytes_of, kodanu_math::Mat4};
+use {bytemuck::bytes_of, kodanu_macros::Getters, kodanu_math::Mat4};
 
+#[derive(Getters, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct GpuModel {
+    #[getter()]
     buffer: WgpuBuffer,
+    #[getter()]
     bind_group: WgpuBindGroup,
 }
 
@@ -42,15 +43,5 @@ impl GpuModel {
 impl GpuModel {
     pub fn update(&self, queue: &WgpuQueue, matrix: Mat4) {
         queue.write_buffer(&self.buffer, 0, bytes_of(&ModelUniform::from(matrix)));
-    }
-}
-
-impl GpuModel {
-    pub fn buffer(&self) -> &WgpuBuffer {
-        &self.buffer
-    }
-
-    pub fn bind_group(&self) -> &WgpuBindGroup {
-        &self.bind_group
     }
 }

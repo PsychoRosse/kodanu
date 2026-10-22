@@ -9,16 +9,19 @@ use wgpu::{
 
 use {
     kodanu_ecs::{Commands, EventReader, Res, ResMut, Resource},
+    kodanu_macros::Getters,
     kodanu_math::SurfaceSize,
 };
 
-#[derive(Resource)]
+#[derive(Getters, Resource)]
 pub(crate) struct MsaaView {
     texture: WgpuTexture,
+    #[getter()]
     view: WgpuTextureView,
 }
 
 impl MsaaView {
+    #[inline(always)]
     pub fn new(device: &WgpuDevice, size: SurfaceSize, format: WgpuTextureFormat) -> Self {
         let texture = device.create_texture(&WgpuTextureDescriptor {
             label: Some("Msaa View"),
@@ -50,6 +53,7 @@ impl MsaaView {
         ));
     }
 
+    #[inline(always)]
     pub fn msaa_view_system(
         event: EventReader<SurfaceSize>,
         instance: Res<Instance>,
@@ -62,14 +66,11 @@ impl MsaaView {
 }
 
 impl MsaaView {
+    #[inline]
     pub fn resize(&mut self, device: &WgpuDevice, size: SurfaceSize, format: WgpuTextureFormat) {
         let msaa = Self::new(device, size, format);
 
         self.texture = msaa.texture;
         self.view = msaa.view;
-    }
-
-    pub fn view(&self) -> &WgpuTextureView {
-        &self.view
     }
 }

@@ -1,5 +1,11 @@
-#[derive(Debug, Clone, Copy, PartialEq)]
+use {
+    kodanu_macros::Getters,
+    serde::{Deserialize, Serialize},
+};
+
+#[derive(Getters, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Color {
+    #[getter(copy, name = "get")]
     value: [f32; 4],
 }
 
@@ -28,11 +34,5 @@ impl Color {
         Self {
             value: [r, g, b, a],
         }
-    }
-}
-
-impl Color {
-    pub const fn get(&self) -> [f32; 4] {
-        self.value
     }
 }
