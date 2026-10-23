@@ -5,6 +5,10 @@ use {
     kodanu_math::{Mat4, SurfaceSize},
 };
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Component, Default, Debug, Clone, Copy)]
 pub struct Camera {
     projection: Projection,

@@ -1,5 +1,9 @@
 use kodanu_ecs::Resource;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Resource, Debug, Clone, Copy)]
 pub struct CameraSettings {
     pub sens: f32,
