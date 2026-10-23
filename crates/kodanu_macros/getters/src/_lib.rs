@@ -1,4 +1,3 @@
-
 use syn::{Data, DeriveInput, Field, Fields, Ident, Index, LitStr, Result, parse_macro_input};
 
 use {

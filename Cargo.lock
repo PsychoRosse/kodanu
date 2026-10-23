@@ -3792,13 +3792,14 @@ dependencies = [
 
 [[package]]
 name = "kodanu_input"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "kodanu_ecs",
  "kodanu_macros",
  "kodanu_math",
  "kodanu_time",
  "kodanu_window",
+ "serde",
 ]
 
 [[package]]

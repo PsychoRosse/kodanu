@@ -3,9 +3,7 @@ mod internal;
 mod plugins;
 mod resources;
 
-pub mod prelude {
-    pub use crate::{Axis, Input, InputPlugin};
-}
+pub mod prelude;
 
 pub use {api::*, plugins::*, resources::*};
 

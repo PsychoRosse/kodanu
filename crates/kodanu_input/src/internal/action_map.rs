@@ -2,6 +2,10 @@ use crate::{Axis, AxisBinding, Input};
 
 use {kodanu_macros::map_with_capacity, kodanu_window::Key, std::collections::HashMap};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub(crate) struct ActionMap {
     axis: HashMap<Axis, AxisBinding>,
 }

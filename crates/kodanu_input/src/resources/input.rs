@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use crate::{ActionMap, Axis, DeviceState};
 
 use {
@@ -7,12 +5,17 @@ use {
     kodanu_macros::Getters,
     kodanu_math::{MouseDelta, MousePos, MouseScroll, MouseScrollDelta},
     kodanu_time::Time,
+    std::time::Duration,
 };
 
 pub use kodanu_window::{
     Button, ButtonStatus, Key, KeyStatus, KeyboardEvent, MouseEvent, MouseWheelEvent,
 };
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Getters, Resource, Default)]
 pub struct Input {
     action_map: ActionMap,

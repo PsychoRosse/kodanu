@@ -1,39 +1,37 @@
-use std::{
-    collections::{HashMap, HashSet},
-    hash::Hash,
-    time::Duration,
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-pub(crate) struct DeviceState<D: Eq + Hash + Copy> {
-    pressed: HashSet<D>,
-    just_pressed: HashSet<D>,
-    just_released: HashSet<D>,
-    held_for: HashMap<D, Duration>,
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub(crate) struct DeviceState<D: Eq + std::hash::Hash + Copy> {
+    pressed: std::collections::HashSet<D>,
+    just_pressed: std::collections::HashSet<D>,
+    just_released: std::collections::HashSet<D>,
+    held_for: std::collections::HashMap<D, std::time::Duration>,
 }
 
-impl<D: Eq + Hash + Copy> Default for DeviceState<D> {
+impl<D: Eq + std::hash::Hash + Copy> Default for DeviceState<D> {
     fn default() -> Self {
         Self {
-            pressed: HashSet::default(),
-            just_pressed: HashSet::default(),
-            just_released: HashSet::default(),
-            held_for: HashMap::default(),
+            pressed: std::collections::HashSet::default(),
+            just_pressed: std::collections::HashSet::default(),
+            just_released: std::collections::HashSet::default(),
+            held_for: std::collections::HashMap::default(),
         }
     }
 }
 
-impl<D: Eq + Hash + Copy> DeviceState<D> {
+impl<D: Eq + std::hash::Hash + Copy> DeviceState<D> {
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
-            pressed: HashSet::with_capacity(capacity),
-            just_pressed: HashSet::with_capacity(capacity),
-            just_released: HashSet::with_capacity(capacity),
-            held_for: HashMap::with_capacity(capacity),
+            pressed: std::collections::HashSet::with_capacity(capacity),
+            just_pressed: std::collections::HashSet::with_capacity(capacity),
+            just_released: std::collections::HashSet::with_capacity(capacity),
+            held_for: std::collections::HashMap::with_capacity(capacity),
         }
     }
 }
 
-impl<D: Eq + Hash + Copy> DeviceState<D> {
+impl<D: Eq + std::hash::Hash + Copy> DeviceState<D> {
     #[inline]
     pub fn clear(&mut self) {
         self.just_pressed.clear();
@@ -49,7 +47,7 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
     pub fn press(&mut self, button: D) {
         if self.pressed.insert(button) {
             self.just_pressed.insert(button);
-            self.held_for.insert(button, Duration::ZERO);
+            self.held_for.insert(button, std::time::Duration::ZERO);
         }
     }
 
@@ -77,7 +75,7 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
     }
 
     #[inline]
-    pub fn is_held_for(&self, button: D, duration: Duration) -> bool {
+    pub fn is_held_for(&self, button: D, duration: std::time::Duration) -> bool {
         self.held_for
             .get(&button)
             .is_some_and(|elapsed| *elapsed >= duration)
@@ -85,7 +83,7 @@ impl<D: Eq + Hash + Copy> DeviceState<D> {
 
     #[inline]
     pub fn update(&mut self, delta: f32) {
-        let delta = Duration::from_secs_f32(delta);
+        let delta = std::time::Duration::from_secs_f32(delta);
 
         for elapsed in self.held_for.values_mut() {
             *elapsed += delta;
