@@ -19,7 +19,11 @@ all-features = true
 rustdoc-args = ["--document-private-items"]
 
 [dependencies]
-serde = { workspace = true }
-
 kodanu_ecs = { workspace = true }
 kodanu_macros = { workspace = true }
+
+serde = { workspace = true, features = ["derive"], optional = true }
+
+[features]
+default = ["serde"]
+serde = ["dep:serde"]

@@ -13,6 +13,7 @@ impl Plugin for TimePlugin {
     }
 }
 
+#[inline(always)]
 fn time_system(mut time: ResMut<Time>, mut driver: ResMut<TimeDriver>) {
     let (delta, elapsed) = driver.update();
 

@@ -21,6 +21,7 @@ impl Default for TimeDriver {
 }
 
 impl TimeDriver {
+    #[inline]
     pub(crate) fn update(&mut self) -> (f32, f32) {
         let now = Instant::now();
 

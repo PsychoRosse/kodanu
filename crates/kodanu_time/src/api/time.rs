@@ -1,10 +1,10 @@
-use {
-    kodanu_ecs::Resource,
-    kodanu_macros::Getters,
-    serde::{Deserialize, Serialize},
-};
+use {kodanu_ecs::Resource, kodanu_macros::Getters};
 
-#[derive(Getters, Resource, Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Getters, Resource, Debug, Clone, Copy)]
 pub struct Time {
     #[getter(copy, must_use)]
     delta: f32,
@@ -29,6 +29,7 @@ impl Time {
 }
 
 impl Time {
+    #[inline]
     pub(crate) fn update(&mut self, raw_delta: f32, elapsed: f32) {
         self.delta = raw_delta.min(self.max_delta);
         self.elapsed = elapsed;
