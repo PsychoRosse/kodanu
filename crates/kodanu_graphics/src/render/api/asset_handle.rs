@@ -1,11 +1,12 @@
 use {
     kodanu_macros::Getters,
     serde::{Deserialize, Serialize},
-    std::{
-        hash::{Hash, Hasher},
-        marker::PhantomData,
-        num::NonZeroU32,
-    },
+};
+
+use std::{
+    hash::{Hash, Hasher},
+    marker::PhantomData,
+    num::NonZeroU32,
 };
 
 #[derive(Getters, Debug, PartialOrd, Ord, Serialize, Deserialize)]

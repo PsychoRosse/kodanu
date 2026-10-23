@@ -5,14 +5,17 @@ use {
 
 #[derive(Getters, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SurfaceTarget {
-    #[getter(copy, must_use, name = "raw_display")]
-    display: RawDisplayHandle,
-    #[getter(copy, must_use, name = "raw_window")]
-    window: RawWindowHandle,
+    #[getter(copy, must_use)]
+    raw_display: RawDisplayHandle,
+    #[getter(copy, must_use)]
+    raw_window: RawWindowHandle,
 }
 
 impl SurfaceTarget {
-    pub fn new(display: RawDisplayHandle, window: RawWindowHandle) -> Self {
-        Self { display, window }
+    pub fn new(raw_display: RawDisplayHandle, raw_window: RawWindowHandle) -> Self {
+        Self {
+            raw_display,
+            raw_window,
+        }
     }
 }

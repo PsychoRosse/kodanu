@@ -3871,6 +3871,7 @@ dependencies = [
  "kodanu_macros",
  "kodanu_math",
  "raw-window-handle",
+ "serde",
  "thiserror 2.0.21",
  "winit",
 ]

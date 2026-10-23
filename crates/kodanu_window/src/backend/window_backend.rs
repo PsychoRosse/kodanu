@@ -1,23 +1,31 @@
-use crate::{SurfaceTarget, WindowFrontend, WindowHandle, WindowHandlerError};
+use crate::{SurfaceTarget, WindowFrontend, WindowHandle, WindowHandlerError, winit};
 
 use {
     kodanu_math::SurfaceSize,
     raw_window_handle::{HasDisplayHandle, HasWindowHandle},
-    std::sync::Arc,
 };
 
-use winit::window::Window as WinitWindow;
-
-pub struct WinitWindowBackend {
-    window: Arc<dyn WinitWindow>,
+pub struct WindowBackend {
+    window: std::sync::Arc<dyn winit::Window>,
 }
 
-impl WindowFrontend for WinitWindowBackend {
+impl std::fmt::Debug for WindowBackend {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("WinitWindowBackend")
+            .field("Window", &"dyn Window")
+            .field("Id", &self.window.id())
+            .field("Title", &self.window.title())
+            .finish()
+    }
+}
+
+impl WindowFrontend for WindowBackend {
     #[inline]
     fn redraw(&self) {
         self.window.request_redraw();
     }
 
+    #[inline]
     fn size(&self) -> SurfaceSize {
         let size = self.window.surface_size();
 
@@ -25,7 +33,7 @@ impl WindowFrontend for WinitWindowBackend {
     }
 }
 
-impl WindowHandle for WinitWindowBackend {
+impl WindowHandle for WindowBackend {
     fn target(&self) -> Result<SurfaceTarget, WindowHandlerError> {
         let window = self
             .window
@@ -43,10 +51,10 @@ impl WindowHandle for WinitWindowBackend {
     }
 }
 
-impl From<Box<dyn WinitWindow>> for WinitWindowBackend {
-    fn from(value: Box<dyn WinitWindow>) -> Self {
+impl From<Box<dyn winit::Window>> for WindowBackend {
+    fn from(value: Box<dyn winit::Window>) -> Self {
         Self {
-            window: Arc::from(value),
+            window: std::sync::Arc::from(value),
         }
     }
 }

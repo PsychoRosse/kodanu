@@ -1,9 +1,11 @@
+use crate::winit;
+
 use {kodanu_macros::Getters, kodanu_math::WindowSize};
 
-use winit::{
-    dpi::PhysicalSize as WinitPhysicalSize, window::WindowAttributes as WinitWindowAttributes,
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Getters, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct WindowAttributes {
     #[getter(str)]
@@ -57,18 +59,17 @@ impl WindowAttributes {
     }
 }
 
-impl From<WindowAttributes> for WinitWindowAttributes {
+impl From<WindowAttributes> for winit::WindowAttributes {
     fn from(value: WindowAttributes) -> Self {
-        WinitWindowAttributes::default()
+        let surface_size = winit::PhysicalSize::new(value.size.width(), value.size.height());
+        
+        let min_surface_size =
+            winit::PhysicalSize::new(value.min_size.width(), value.min_size.height());
+
+        winit::WindowAttributes::default()
             .with_title(value.title)
-            .with_surface_size(WinitPhysicalSize::new(
-                value.size.width(),
-                value.size.height(),
-            ))
-            .with_min_surface_size(WinitPhysicalSize::new(
-                value.min_size.width(),
-                value.min_size.height(),
-            ))
+            .with_surface_size(surface_size)
+            .with_min_surface_size(min_surface_size)
             .with_maximized(value.maximized)
             .with_decorations(value.decorations)
     }

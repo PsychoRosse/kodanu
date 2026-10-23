@@ -5,6 +5,7 @@ pub use {
     kodanu_math::{MousePos, SurfaceSize},
 };
 
+#[derive(Clone, Copy)]
 pub struct WindowEventPlugin;
 
 impl Plugin for WindowEventPlugin {

@@ -1,6 +1,6 @@
 use crate::{WindowEvent, WindowFrontend, WindowHandle, WindowId};
 
-pub trait WindowApplication: 'static {
+pub trait Application: 'static {
     fn start(&mut self, _window: &impl WindowFrontend, _handle: &impl WindowHandle) {}
 
     fn event(&mut self, event: WindowEvent, id: WindowId);

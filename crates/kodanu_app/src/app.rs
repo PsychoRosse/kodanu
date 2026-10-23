@@ -1,6 +1,6 @@
 use kodanu_window::{
-    Closing, KeyboardEvent, MouseEvent, MouseWheelEvent, Redrawing, WindowApplication,
-    WindowAttributes, WindowEvent, WindowFrontend, WindowHandle, WindowId, WinitWindowApplication,
+    Application, Closing, EventLoopError, KeyboardEvent, MouseEvent, MouseWheelEvent, Redrawing,
+    WindowApplication, WindowAttributes, WindowEvent, WindowFrontend, WindowHandle, WindowId,
 };
 
 use {
@@ -21,11 +21,13 @@ pub struct App {
 }
 
 impl App {
-    pub fn run_from(mut self, attr: WindowAttributes) {
+    pub fn run_from(mut self, attr: WindowAttributes) -> Result<(), EventLoopError> {
         self.plugins
             .build(WorldCell::from(&mut self.world), &mut self.schduler);
 
-        WinitWindowApplication::new(attr, self).run();
+        WindowApplication::new(attr, self).run()?;
+
+        Ok(())
     }
 }
 
@@ -36,20 +38,8 @@ impl App {
     }
 }
 
-impl WindowApplication for App {
-    fn start(&mut self, window: &impl WindowFrontend, handle: &impl WindowHandle) {
-        let descriptor =
-            InstanceDescriptor::with(Backend::default(), handle.target().unwrap(), window.size());
-
-        self.world.with_res(block_on(Instance::new(descriptor)));
-
-        self.schduler.run_startup(WorldCell::from(&mut self.world));
-
-        if !self.plugins.is_plugin_registered::<DevPlugins>() {
-            exit(0)
-        }
-    }
-
+impl Application for App {
+    #[inline]
     fn event(&mut self, event: WindowEvent, _: WindowId) {
         let cell = WorldCell::from(&mut self.world);
 
@@ -81,6 +71,19 @@ impl WindowApplication for App {
                 cell.expect_mut_event::<MouseWheelEvent>().send(delta);
             }
             _ => {}
+        }
+    }
+
+    fn start(&mut self, window: &impl WindowFrontend, handle: &impl WindowHandle) {
+        let descriptor =
+            InstanceDescriptor::with(Backend::default(), handle.target().unwrap(), window.size());
+
+        self.world.with_res(block_on(Instance::new(descriptor)));
+
+        self.schduler.run_startup(WorldCell::from(&mut self.world));
+
+        if !self.plugins.is_plugin_registered::<DevPlugins>() {
+            exit(0)
         }
     }
 }
