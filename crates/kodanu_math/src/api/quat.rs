@@ -1,11 +1,10 @@
 use crate::Vec3;
 
-use {
-    serde::{Deserialize, Serialize},
-    std::ops::{Div, DivAssign, Mul, MulAssign, Neg},
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quat {
     pub x: f32,
     pub y: f32,
@@ -291,7 +290,7 @@ impl Quat {
     }
 }
 
-impl Mul for Quat {
+impl std::ops::Mul for Quat {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -304,13 +303,13 @@ impl Mul for Quat {
     }
 }
 
-impl MulAssign for Quat {
+impl std::ops::MulAssign for Quat {
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
     }
 }
 
-impl Mul<f32> for Quat {
+impl std::ops::Mul<f32> for Quat {
     type Output = Self;
 
     fn mul(self, rhs: f32) -> Self::Output {
@@ -318,7 +317,7 @@ impl Mul<f32> for Quat {
     }
 }
 
-impl MulAssign<f32> for Quat {
+impl std::ops::MulAssign<f32> for Quat {
     fn mul_assign(&mut self, rhs: f32) {
         self.x *= rhs;
         self.y *= rhs;
@@ -327,14 +326,14 @@ impl MulAssign<f32> for Quat {
     }
 }
 
-impl Div<f32> for Quat {
+impl std::ops::Div<f32> for Quat {
     type Output = Self;
 
     fn div(self, rhs: f32) -> Self::Output {
         Self::new(self.x / rhs, self.y / rhs, self.z / rhs, self.w / rhs)
     }
 }
-impl DivAssign<f32> for Quat {
+impl std::ops::DivAssign<f32> for Quat {
     fn div_assign(&mut self, rhs: f32) {
         self.x /= rhs;
         self.y /= rhs;
@@ -343,7 +342,7 @@ impl DivAssign<f32> for Quat {
     }
 }
 
-impl Neg for Quat {
+impl std::ops::Neg for Quat {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -351,7 +350,7 @@ impl Neg for Quat {
     }
 }
 
-impl Mul<Vec3> for Quat {
+impl std::ops::Mul<Vec3> for Quat {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {

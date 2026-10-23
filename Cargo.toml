@@ -34,7 +34,7 @@ authors = ["raaiden666"]
 winit = { version = "0.31.0-beta.3" }
 wgpu = { version = "30.0.1" }
 
-rapier3d = { version = "0.36.0", features = ["parallel", "simd8", "f32", "serde"] }
+rapier3d = { version = "0.36.0", features = ["parallel", "simd8", "f32", "serde-serialize"] }
 
 serde = { version = "1.0.228", features = ["derive"] }
 ron = "0.12.2"

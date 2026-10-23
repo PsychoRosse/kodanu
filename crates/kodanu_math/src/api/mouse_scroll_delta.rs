@@ -1,6 +1,8 @@
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct MouseScrollDelta {
     x: f32,
     y: f32,

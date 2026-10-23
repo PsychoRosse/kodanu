@@ -1,11 +1,10 @@
 use crate::Vec3;
 
-use {
-    serde::{Deserialize, Serialize},
-    std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Vec4 {
     pub x: f32,
     pub y: f32,
@@ -141,7 +140,7 @@ impl Vec4 {
     }
 }
 
-impl Add for Vec4 {
+impl std::ops::Add for Vec4 {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
@@ -154,7 +153,7 @@ impl Add for Vec4 {
     }
 }
 
-impl Sub for Vec4 {
+impl std::ops::Sub for Vec4 {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
@@ -167,7 +166,7 @@ impl Sub for Vec4 {
     }
 }
 
-impl Mul<Vec4> for Vec4 {
+impl std::ops::Mul<Vec4> for Vec4 {
     type Output = Self;
 
     fn mul(self, other: Vec4) -> Self {
@@ -180,7 +179,7 @@ impl Mul<Vec4> for Vec4 {
     }
 }
 
-impl Div<Vec4> for Vec4 {
+impl std::ops::Div<Vec4> for Vec4 {
     type Output = Self;
 
     fn div(self, other: Vec4) -> Self {
@@ -193,7 +192,7 @@ impl Div<Vec4> for Vec4 {
     }
 }
 
-impl Mul<f32> for Vec4 {
+impl std::ops::Mul<f32> for Vec4 {
     type Output = Self;
 
     fn mul(self, scalar: f32) -> Self {
@@ -206,7 +205,7 @@ impl Mul<f32> for Vec4 {
     }
 }
 
-impl Div<f32> for Vec4 {
+impl std::ops::Div<f32> for Vec4 {
     type Output = Self;
 
     fn div(self, scalar: f32) -> Self {
@@ -219,7 +218,7 @@ impl Div<f32> for Vec4 {
     }
 }
 
-impl Neg for Vec4 {
+impl std::ops::Neg for Vec4 {
     type Output = Self;
 
     fn neg(self) -> Self {
@@ -227,7 +226,7 @@ impl Neg for Vec4 {
     }
 }
 
-impl AddAssign for Vec4 {
+impl std::ops::AddAssign for Vec4 {
     fn add_assign(&mut self, other: Self) {
         self.x += other.x;
         self.y += other.y;
@@ -236,7 +235,7 @@ impl AddAssign for Vec4 {
     }
 }
 
-impl SubAssign for Vec4 {
+impl std::ops::SubAssign for Vec4 {
     fn sub_assign(&mut self, other: Self) {
         self.x -= other.x;
         self.y -= other.y;
@@ -245,7 +244,7 @@ impl SubAssign for Vec4 {
     }
 }
 
-impl MulAssign for Vec4 {
+impl std::ops::MulAssign for Vec4 {
     fn mul_assign(&mut self, other: Self) {
         self.x *= other.x;
         self.y *= other.y;
@@ -254,7 +253,7 @@ impl MulAssign for Vec4 {
     }
 }
 
-impl MulAssign<f32> for Vec4 {
+impl std::ops::MulAssign<f32> for Vec4 {
     fn mul_assign(&mut self, scalar: f32) {
         self.x *= scalar;
         self.y *= scalar;
@@ -263,7 +262,7 @@ impl MulAssign<f32> for Vec4 {
     }
 }
 
-impl DivAssign for Vec4 {
+impl std::ops::DivAssign for Vec4 {
     fn div_assign(&mut self, other: Self) {
         self.x /= other.x;
         self.y /= other.y;
@@ -272,7 +271,7 @@ impl DivAssign for Vec4 {
     }
 }
 
-impl DivAssign<f32> for Vec4 {
+impl std::ops::DivAssign<f32> for Vec4 {
     fn div_assign(&mut self, scalar: f32) {
         self.x /= scalar;
         self.y /= scalar;

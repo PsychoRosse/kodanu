@@ -1,11 +1,10 @@
 use crate::MousePos;
 
-use {
-    serde::{Deserialize, Serialize},
-    std::ops::AddAssign,
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct MouseDelta {
     x: f32,
     y: f32,
@@ -45,7 +44,7 @@ impl MouseDelta {
     }
 }
 
-impl AddAssign for MouseDelta {
+impl std::ops::AddAssign for MouseDelta {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;

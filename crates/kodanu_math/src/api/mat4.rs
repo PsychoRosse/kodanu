@@ -1,11 +1,10 @@
 use crate::{Quat, Vec3, Vec4};
 
-use {
-    serde::{Deserialize, Serialize},
-    std::ops::{Mul, MulAssign},
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Mat4 {
     pub x_axis: Vec4,
     pub y_axis: Vec4,
@@ -304,7 +303,7 @@ impl Mat4 {
     }
 }
 
-impl Mul for Mat4 {
+impl std::ops::Mul for Mat4 {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -317,7 +316,7 @@ impl Mul for Mat4 {
     }
 }
 
-impl Mul<Vec4> for Mat4 {
+impl std::ops::Mul<Vec4> for Mat4 {
     type Output = Vec4;
 
     fn mul(self, rhs: Vec4) -> Self::Output {
@@ -342,7 +341,7 @@ impl Mul<Vec4> for Mat4 {
     }
 }
 
-impl MulAssign for Mat4 {
+impl std::ops::MulAssign for Mat4 {
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
     }

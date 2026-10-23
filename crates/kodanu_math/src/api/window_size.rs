@@ -1,9 +1,8 @@
-use {
-    serde::{Deserialize, Serialize},
-    std::fmt::{Display, Formatter, Result},
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct WindowSize {
     width: u32,
     height: u32,
@@ -125,11 +124,5 @@ impl From<(u32, u32)> for WindowSize {
 impl From<WindowSize> for (u32, u32) {
     fn from(size: WindowSize) -> Self {
         (size.width, size.height)
-    }
-}
-
-impl Display for WindowSize {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}×{}", self.width, self.height)
     }
 }

@@ -1,9 +1,10 @@
-use {
-    kodanu_ecs::Event,
-    serde::{Deserialize, Serialize},
-};
+use kodanu_ecs::Event;
 
-#[derive(Event, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Event, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SurfaceSize {
     width: u32,
     height: u32,

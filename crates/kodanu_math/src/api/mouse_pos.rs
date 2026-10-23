@@ -1,12 +1,12 @@
 use crate::MouseDelta;
 
-use {
-    kodanu_ecs::Event,
-    serde::{Deserialize, Serialize},
-    std::ops::Sub,
-};
+use kodanu_ecs::Event;
 
-#[derive(Event, Default, Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Event, Default, Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct MousePos {
     x: f32,
     y: f32,
@@ -31,7 +31,7 @@ impl MousePos {
     }
 }
 
-impl Sub for MousePos {
+impl std::ops::Sub for MousePos {
     type Output = MouseDelta;
 
     fn sub(self, rhs: Self) -> Self::Output {
