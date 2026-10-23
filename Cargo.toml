@@ -2,7 +2,6 @@
 members = [
     "bin",
     "crates/kodanu",
-    "crates/kodanu_ai",
     "crates/kodanu_app",
     "crates/kodanu_camera",
     "crates/kodanu_ecs",
@@ -58,7 +57,6 @@ burn = { version = "0.22", default-features = false,features = [
 ] }
 
 kodanu = { package = "kodanu", path = "crates/kodanu" }
-kodanu_ai = { package = "kodanu_ai", path = "crates/kodanu_ai" }
 kodanu_app = { package = "kodanu_app", path = "crates/kodanu_app" }
 kodanu_camera = { package = "kodanu_camera", path = "crates/kodanu_camera" }
 kodanu_ecs = { package = "kodanu_ecs", path = "crates/kodanu_ecs" }

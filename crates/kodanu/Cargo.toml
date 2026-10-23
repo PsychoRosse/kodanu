@@ -7,7 +7,6 @@ edition = "2024"
 path = "src/_lib.rs"
 
 [dependencies]
-kodanu_ai = { workspace = true }
 kodanu_app = { workspace = true }
 kodanu_camera = { workspace = true }
 kodanu_ecs = { workspace = true }

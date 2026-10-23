@@ -1,5 +1,4 @@
 pub mod prelude {
-    pub use kodanu_ai::prelude::*;
     pub use kodanu_app::prelude::*;
     pub use kodanu_camera::prelude::*;
     pub use kodanu_ecs::prelude::*;
@@ -20,8 +19,7 @@ pub mod prelude {
 pub use kodanu_physics as physics;
 
 pub use {
-    kodanu_ai as ai, kodanu_app as app, kodanu_camera as camera, kodanu_ecs as ecs,
-    kodanu_graphics as graphics, kodanu_input as input, kodanu_math as math,
-    kodanu_plugins as plugins, kodanu_time as time, kodanu_transform as transform,
-    kodanu_window as window,
+    kodanu_app as app, kodanu_camera as camera, kodanu_ecs as ecs, kodanu_graphics as graphics,
+    kodanu_input as input, kodanu_math as math, kodanu_plugins as plugins, kodanu_time as time,
+    kodanu_transform as transform, kodanu_window as window,
 };
