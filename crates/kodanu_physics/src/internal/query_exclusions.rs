@@ -1,14 +1,15 @@
+use crate::rapier3d;
+
 use crate::{Collider, RigidBody};
 
-use rapier3d::prelude::{Collider as RapierCollider, ColliderHandle as RapierColliderHandle};
-
-pub struct QueryExclusions<'a> {
-    pub colliders: &'a [&'a Collider],
-    pub rigid_bodies: &'a [&'a RigidBody],
+#[derive(Clone, Copy)]
+pub struct QueryExclusions<'q> {
+    pub colliders: &'q [&'q Collider],
+    pub rigid_bodies: &'q [&'q RigidBody],
 }
 
 impl QueryExclusions<'_> {
-    pub fn allows(&self, handle: RapierColliderHandle, collider: &RapierCollider) -> bool {
+    pub fn allows(&self, handle: rapier3d::ColliderHandle, collider: &rapier3d::Collider) -> bool {
         if self
             .colliders
             .iter()

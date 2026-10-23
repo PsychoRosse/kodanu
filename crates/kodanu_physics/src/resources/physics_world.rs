@@ -1,3 +1,5 @@
+use crate::rapier3d;
+
 use crate::{Collider, Hit, QueryExclusions, RigidBody};
 
 pub use {
@@ -6,29 +8,18 @@ pub use {
     kodanu_transform::Transform,
 };
 
-use rapier3d::prelude::{
-    Collider as RapierCollider, PhysicsWorld as RapierPhysicsWorld, Pose3 as RapierPose3,
-    RigidBodyType as RapierRigidBodyType,
-};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
-use rapier3d::{
-    math::{Rot3 as RapierRot3, Vec3 as RapierVec3, Vector as RapierVector},
-    pipeline::QueryFilter as RapierQueryFilter,
-};
-
-use rapier3d::parry::{
-    query::{Ray as RapierRay, ShapeCastOptions as RapierShapeCastOptions},
-    shape::Ball as RapierBall,
-};
-
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Resource, Default)]
 pub struct PhysicsWorld {
-    physics: RapierPhysicsWorld,
+    physics: rapier3d::PhysicsWorld,
 }
 
 impl PhysicsWorld {
     pub fn set_gravity(&mut self, gravity: Vec3) {
-        self.physics.gravity = RapierVec3::new(gravity.x, gravity.y, gravity.z);
+        self.physics.gravity = rapier3d::Vec3::new(gravity.x, gravity.y, gravity.z);
     }
 
     pub fn remove_rigid_body(&mut self, body: &mut RigidBody) {
@@ -62,17 +53,17 @@ impl PhysicsWorld {
         }
 
         let direction = Self::normalized_direction(direction)?;
-        let origin = RapierVector::new(origin.x, origin.y, origin.z);
-        let ray = RapierRay::new(origin, direction);
+        let origin = rapier3d::Vector::new(origin.x, origin.y, origin.z);
+        let ray = rapier3d::Ray::new(origin, direction);
 
         let exclusions = QueryExclusions {
             colliders: exclude_colliders.unwrap_or_default(),
             rigid_bodies: exclude_rigid_bodies.unwrap_or_default(),
         };
 
-        let predicate = |handle, collider: &RapierCollider| exclusions.allows(handle, collider);
+        let predicate = |handle, collider: &rapier3d::Collider| exclusions.allows(handle, collider);
 
-        let filter = RapierQueryFilter {
+        let filter = rapier3d::QueryFilter {
             predicate: Some(&predicate),
             ..Default::default()
         };
@@ -116,11 +107,11 @@ impl PhysicsWorld {
         }
 
         let direction = Self::normalized_direction(direction)?;
-        let shape = RapierBall::new(radius);
+        let shape = rapier3d::Ball::new(radius);
 
-        let shape_position = RapierPose3::from_parts(
-            RapierVector::new(origin.x, origin.y, origin.z),
-            RapierRot3::from_xyzw(0.0, 0.0, 0.0, 1.0),
+        let shape_position = rapier3d::Pose3::from_parts(
+            rapier3d::Vector::new(origin.x, origin.y, origin.z),
+            rapier3d::Rot3::from_xyzw(0.0, 0.0, 0.0, 1.0),
         );
 
         let exclusions = QueryExclusions {
@@ -128,9 +119,9 @@ impl PhysicsWorld {
             rigid_bodies: exclude_rigid_bodies.unwrap_or_default(),
         };
 
-        let predicate = |handle, collider: &RapierCollider| exclusions.allows(handle, collider);
+        let predicate = |handle, collider: &rapier3d::Collider| exclusions.allows(handle, collider);
 
-        let filter = RapierQueryFilter {
+        let filter = rapier3d::QueryFilter {
             predicate: Some(&predicate),
             ..Default::default()
         };
@@ -146,7 +137,7 @@ impl PhysicsWorld {
             &shape_position,
             direction,
             &shape,
-            RapierShapeCastOptions {
+            rapier3d::ShapeCastOptions {
                 max_time_of_impact: max_distance,
                 ..Default::default()
             },
@@ -169,7 +160,7 @@ impl PhysicsWorld {
 }
 
 impl PhysicsWorld {
-    fn normalized_direction(direction: Vec3) -> Option<RapierVector> {
+    fn normalized_direction(direction: Vec3) -> Option<rapier3d::Vector> {
         if !direction.is_finite() {
             return None;
         }
@@ -182,7 +173,7 @@ impl PhysicsWorld {
 
         let inv_length = length_squared.sqrt().recip();
 
-        Some(RapierVector::new(
+        Some(rapier3d::Vector::new(
             direction.x * inv_length,
             direction.y * inv_length,
             direction.z * inv_length,
@@ -234,7 +225,7 @@ impl PhysicsWorld {
                 continue;
             };
 
-            if rigid_body.body_type() != RapierRigidBodyType::Dynamic {
+            if rigid_body.body_type() != rapier3d::RigidBodyType::Dynamic {
                 continue;
             }
 
@@ -269,7 +260,7 @@ impl PhysicsWorld {
                 continue;
             };
 
-            if rigid_body.body_type() != RapierRigidBodyType::KinematicPositionBased {
+            if rigid_body.body_type() != rapier3d::RigidBodyType::KinematicPositionBased {
                 continue;
             }
 
@@ -277,13 +268,13 @@ impl PhysicsWorld {
                 continue;
             };
 
-            body.set_next_kinematic_position(RapierPose3::from_parts(
-                RapierVec3::new(
+            body.set_next_kinematic_position(rapier3d::Pose3::from_parts(
+                rapier3d::Vec3::new(
                     transform.position.x,
                     transform.position.y,
                     transform.position.z,
                 ),
-                RapierRot3::from_xyzw(
+                rapier3d::Rot3::from_xyzw(
                     transform.rotation.x,
                     transform.rotation.y,
                     transform.rotation.z,

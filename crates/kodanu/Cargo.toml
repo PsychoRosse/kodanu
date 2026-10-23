@@ -18,12 +18,11 @@ kodanu_transform = { workspace = true }
 kodanu_window = { workspace = true }
 kodanu_time = { workspace = true }
 kodanu_plugins = { workspace = true }
+kodanu_macros = { workspace = true}
 
 kodanu_physics = { workspace = true, optional = true }
-kodanu_macros = { workspace = true, optional = true }
 
 [features]
-default = ["physics", "macros"]
+default = ["physics"]
 
 physics = ["dep:kodanu_physics"]
-macros = ["dep:kodanu_macros"]
