@@ -1,9 +1,10 @@
-use {
-    serde::{Deserialize, Serialize},
-    thiserror::Error,
-};
+use thiserror::Error;
 
-#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Error, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TransformError {
     #[error("Translation contains non-finite values")]
     NonFiniteTranslation,

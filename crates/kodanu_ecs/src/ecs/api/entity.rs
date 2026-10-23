@@ -1,6 +1,8 @@
 use crate::{EntityStorage, QueryAccess, WorldCell};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Entity {
     index: u32,
     generation: u32,

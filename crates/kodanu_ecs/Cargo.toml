@@ -8,5 +8,6 @@ path = "src/_lib.rs"
 
 [dependencies]
 thiserror = { workspace = true }
+serde = { workspace = true }
 
 macros = { path = "macros" }

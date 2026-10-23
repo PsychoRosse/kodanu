@@ -3,10 +3,13 @@ use crate::Transform;
 use {
     kodanu_ecs::Component,
     kodanu_math::{Mat4, Vec3},
-    serde::{Deserialize, Serialize},
 };
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct GlobalTransform {
     matrix: Mat4,
 }

@@ -3,10 +3,13 @@ use crate::{Space, TransformError};
 use {
     kodanu_ecs::Component,
     kodanu_math::{Mat4, Quat, Vec3},
-    serde::{Deserialize, Serialize},
 };
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct Transform {
     pub position: Vec3,
     pub rotation: Quat,

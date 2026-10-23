@@ -3763,6 +3763,7 @@ name = "kodanu_ecs"
 version = "0.1.0"
 dependencies = [
  "macros",
+ "serde",
  "thiserror 2.0.21",
 ]
 
