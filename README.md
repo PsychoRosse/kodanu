@@ -2,7 +2,7 @@
 
 **A modular 3D game engine written in Rust.**
 
-Kodanu is a personal game engine project focused on modular architecture, real-time rendering, and low-level control over engine systems. Built with Rust, `wgpu`, `winit`, and a custom Entity Component System (ECS), it provides the foundation for developing 3D games and interactive applications.
+Kodanu is a personal game engine project focused on modular architecture, real-time rendering, and low-level control over engine systems. Built with Rust, `wgpu`, `winit`, and a custom Entity Component System, it provides the foundation for developing 3D games and interactive applications.
 
 The engine is organized as a collection of specialized crates, allowing rendering, physics, input, mathematics, and other subsystems to evolve independently while working together through a unified application layer.
 
